@@ -28,3 +28,22 @@ headless:
 
 json-check:
 	$(RUN_REPORTS_CHECKER)
+rename:
+	@DIR="reporter"; \
+	EXTENSIONS="json csv"; \
+	for EXT in $$EXTENSIONS; do \
+	  ORIGINAL="$$DIR/tweets.$$EXT"; \
+	  BASENAME="tweets-backup"; \
+	  SUFFIX=".$$EXT"; \
+	  if [ -f "$$ORIGINAL" ]; then \
+	    index=1; \
+	    while [ -f "$$DIR/$${BASENAME}[$$index]$$SUFFIX" ]; do \
+	      index=$$((index + 1)); \
+	    done; \
+	    NEWNAME="$$DIR/$${BASENAME}[$$index]$$SUFFIX"; \
+	    mv "$$ORIGINAL" "$$NEWNAME"; \
+	    echo "File $$ORIGINAL berhasil di-rename menjadi $$NEWNAME."; \
+	  else \
+	    echo "File $$ORIGINAL tidak ditemukan. Lewat."; \
+	  fi; \
+	done
