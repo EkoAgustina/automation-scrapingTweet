@@ -175,7 +175,7 @@ async function collectUniqueTweetsToCSV(count: number) {
 async function runTweetScrapingLoops(loopCount: number) {
   try {
     for (let i = 1; i <= loopCount; i++) {
-      await collectUniqueTweetsToCSV(1);
+      await collectUniqueTweetsToCSV(5);
       console.log("------------------tweet key------------------")
       console.log(seenTweetCombos)
       console.log("------------------tweet key------------------")

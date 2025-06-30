@@ -16,7 +16,7 @@ RUN_CHROME_BROWSER_HEADLESS=export BROWSER_NAME=$(CHROME_BROWSER_HEADLESS) && ex
 
 # Running tests on docker containers
 docker:
-	$(RUN_REMOTE_BROWSER) && yarn test
+	$(MAKE) rename && $(RUN_REMOTE_BROWSER) && yarn test
 
 # Running tests on local chrome GUI
 chrome:
