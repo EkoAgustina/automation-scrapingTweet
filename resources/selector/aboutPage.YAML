@@ -1,0 +1,22 @@
+# aboutPageTitle: 'By.id => aboutPageTitle' 
+# aboutContent: 'By.id => aboutContentTitle'
+# # username: 'By.xpath => (//article//div[@dir="ltr"]//span[starts-with(text(),"@")])[12]'
+# username: 'By.xpath => (//article//div[@dir="ltr"]//span[starts-with(text(),"@")])'
+# accountName: 'By.xpath => (//div[@class="css-175oi2r r-1awozwy r-18u37iz r-1wbh5a2 r-dnmrzs"]/div/a/div/div/span/span)'
+# postingTime: 'By.xpath => (//div[@class="css-175oi2r r-18u37iz r-1q142lx"]/a/time)'
+# posting: 'By.xpath => (//div[@data-testid="tweetText"])'
+
+# likesPosting: 'By.xpath => (//button[contains(@aria-label, "Likes") and contains(@aria-label, "Like")]//div[contains(@class, "css-175oi2r") and contains(@class, "r-xoduu5")]//following-sibling::div[@class="css-175oi2r r-xoduu5 r-1udh08x"]/span/span/span)'
+
+tweetArticles: 'By.xpath => (//article)'
+username: 'By.xpath => //span[starts-with(text(),"@")]'
+accountName: 'By.xpath => //div[@class="css-175oi2r r-1awozwy r-18u37iz r-1wbh5a2 r-dnmrzs"]/div/a/div/div/span/span'
+postingTime: 'By.xpath => //div[@class="css-175oi2r r-18u37iz r-1q142lx"]/a/time'
+posting: 'By.xpath => //div[@data-testid="tweetText"]'
+# replies: 'By.xpath => //button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")]'
+replies: 'By.xpath => //button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684")]'
+# reposts: 'By.xpath => //button[contains(@aria-label, "reposts. Repost")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")]'
+reposts: 'By.xpath => //button[contains(@aria-label, "reposts. Repost")]//span[contains(@class, "css-1jxf684")]'
+likes: 'By.xpath => //button[contains(@aria-label, "Likes") and contains(@aria-label, "Like")]//div[contains(@class, "css-175oi2r") and contains(@class, "r-xoduu5")]//following-sibling::div[@class="css-175oi2r r-xoduu5 r-1udh08x"]/span/span/span'
+
+repliesNew: 'By.xpath => (//button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")])[5]'

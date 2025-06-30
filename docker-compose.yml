@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium-standalone-chrome
+    ports:
+      - "4444:4444"
+    volumes:
+      - standalone-chrome-volume:/dev/shm
+    environment:
+      - START_XVFB=false
+      - SE_NODE_MAX_SESSIONS=5 # Mengatur maksimal sesi browser ke 5
+      - SE_NODE_OVERRIDE_MAX_SESSIONS=true
+      - SE_ENABLE_TRACING=false  # Menonaktifkan tracing
+      - SE_OTEL_TRACES_EXPORTER=none  # Menonaktifkan ekspor data tracing
+      - TZ=Asia/Jakarta
+    restart: unless-stopped
+    shm_size: 2gb # Tambahkan shared memory untuk menghindari masalah out-of-memory dengan banyak browser instance
+    mem_limit: 1g    # Membatasi penggunaan memori menjadi 1 GB
+    cpus: 1.0        # Membatasi penggunaan CPU menjadi 1 core
+
+volumes:
+  standalone-chrome-volume:
+
+networks:
+  default:
+    name: jenkins_compose_automation_network
+    external: true

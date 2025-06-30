@@ -1,0 +1,13 @@
+google_main_search_field: 'By.xpath => //div/textarea'
+google_url_portfolio: 'By.xpath => //a[@href="https://ekoagustina.my.id/"]'
+
+google_search_index_two: 'By.xpath => //a[.="2"]'
+google_search_index_ten: 'By.xpath => //a[.="10"]'
+google_search_index_eleven: 'By.xpath => //a[.="11"]'
+google_search_index_twelve: 'By.xpath => //a[.="12"]'
+google_search_index_thirteen: 'By.xpath => //a[.="13"]'
+google_search_index_fourteen: 'By.xpath => //a[.="14"]'
+
+popup_location_title: 'By.xpath => //span[contains(text(), "See results closer to you?") or contains(text(), "Lihat hasil yang lebih dekat dengan Anda?")]'
+popup_location_button_deny: 'By.xpath => //div[contains(text(), "Not now") or contains(text(), "Lain kali")]'
+popup_location_button_allow: 'By.xpath => //div[contains(text(), "Use precise location") or contains(text(), "Gunakan lokasi presisi")]'

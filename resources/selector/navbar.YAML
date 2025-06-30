@@ -1,0 +1,3 @@
+navHomeIcon: 'By.id => navbar_home_title'
+navAboutIcon: 'By.id => navbar_about_title'
+navProjectIcon: 'By.id => navbar_project_title'

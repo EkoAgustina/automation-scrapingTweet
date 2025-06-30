@@ -1,0 +1,25 @@
+projectPageTitle: 'By.id => projectPageTitle'
+
+projectContentTitleOne: 'By.id => projectTitle_Mobile_automation_test_with_WebdriverIO_and_using_Cucumber'
+projectContentOne: 'By.id => projectDescription_title_Mobile_automation_test_with_WebdriverIO_and_using_Cucumber'
+projectOne_button: 'By.id => buttonTitle_Mobile_automation_test_with_WebdriverIO_and_using_Cucumber'
+
+projectContentTitleTwo: 'By.id => projectTitle_Web_automation_test_with_WebdriverIO_and_using_Cucumber'
+projectContentTwo: 'By.id => projectDescription_title_Web_automation_test_with_WebdriverIO_and_using_Cucumber'
+
+projectContentTitleThree: 'By.id => projectTitle_API_automation_test_with_RestAssured'
+projectContentThree: 'By.id => projectDescription_title_API_automation_test_with_RestAssured'
+projectThree_button: 'By.id => buttonTitle_API_automation_test_with_RestAssured'
+
+projectContentTitleFour: 'By.xpath => //h5[@id="projectTitle_API_Automation_Using_SuperTest,_Mocha_and_Chai"]'
+projectContentFour: 'By.xpath => //p[@id="projectDescription_title_API_Automation_Using_SuperTest,_Mocha_and_Chai"]'
+
+projectContentTitleFive: 'By.xpath => //h5[@id="projectTitle_Mobile_automation_test_with_Appium,_JUnit_and_Cucumber"]'
+projectContentFive: 'By.xpath => //p[@id="projectDescription_title_Mobile_automation_test_with_Appium,_JUnit_and_Cucumber"]'
+
+projectContentTitleSix: 'By.xpath => //h5[@id="projectTitle_Web_automation_test_with_Selenium,_JUnit_and_Cucumber"]'
+projectContentSix: 'By.xpath => //p[@id="projectDescription_title_Web_automation_test_with_Selenium,_JUnit_and_Cucumber"]'
+
+projectContentTitleSeven: 'By.xpath => //h5[@id="projectTitle_Web_automation_test_with_Selenium,_TestNG_and_Cucumber"]'
+projectContentSeven: 'By.xpath => //p[@id="projectDescription_title_Web_automation_test_with_Selenium,_TestNG_and_Cucumber"]'
+projectSeven_button: 'By.xpath => //button[@id="buttonTitle_Web_automation_test_with_Selenium,_TestNG_and_Cucumber"]'

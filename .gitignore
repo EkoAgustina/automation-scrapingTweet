@@ -1,0 +1,16 @@
+.DS_Store
+
+.idea
+.vscode
+.prettierrc
+node_modules
+package-lock.json
+allure-report/
+reporter/
+yarn.lock
+
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.tiff
