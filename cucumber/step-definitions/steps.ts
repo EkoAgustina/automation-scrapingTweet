@@ -41,7 +41,7 @@ When(/^User click "(.*)"$/, async (locator) => {
 
 When(/^Users do scraping twitter data$/,async () => {
     try {
-        await runTweetScrapingLoops(100)
+        await runTweetScrapingLoops(50)
     } catch (err: any) {
         log("ERROR", err.message)
         throw err
