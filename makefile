@@ -24,7 +24,7 @@ chrome:
 
 # Running tests on local chrome headless
 headless:
-	$(RUN_CHROME_BROWSER_HEADLESS) && yarn test && $(RUN_REPORTS_CHECKER)
+	$(RUN_CHROME_BROWSER_HEADLESS) && yarn test
 
 json-check:
 	$(RUN_REPORTS_CHECKER)

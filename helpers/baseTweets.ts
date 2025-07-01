@@ -1,10 +1,26 @@
 import { keyElement } from "../mappings/mapper.ts";
 import { swipeUpElDisplayed, swipeUpwithTime } from './baseSwipe.ts';
 import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
+import * as fs from 'fs';
 
 
 const seenTweetCombos = new Set<string>();
 let extractTweetCallCount = 0;
+
+
+function checkDuplicateTweets(username: string, posting:string) {
+  const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
+  const data = JSON.parse(rawData);
+  const found = data.some((item: any) => {
+    return item.Posting === posting && item.Username === username;
+  });
+
+  if (found) {
+    log('WARNING',`⚠️ Tweet already exists, ${username}: ${posting}`)
+    return 'Tweet already exists'
+  }
+  return 'Tweet not found'
+}
 
 /**
  * Membersihkan dan menormalkan teks agar siap untuk dicek duplikat.
@@ -58,8 +74,11 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 
     // Cek apakah tweet sudah pernah diproses (username + posting)
     const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
-    if (seenTweetCombos.has(tweetKey)) {
-      log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
+    // if (seenTweetCombos.has(tweetKey)) {
+    //   log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
+    //   return [];
+    // }
+    if (checkDuplicateTweets(username,posting) == 'Tweet already exists') {
       return [];
     }
 
