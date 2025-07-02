@@ -6,21 +6,46 @@ import * as fs from 'fs';
 
 const seenTweetCombos = new Set<string>();
 let extractTweetCallCount = 0;
+let hasRunCollectOnce = false;
 
-
-function checkDuplicateTweets(username: string, posting:string) {
-  const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
-  const data = JSON.parse(rawData);
-  const found = data.some((item: any) => {
-    return item.Posting === posting && item.Username === username;
-  });
-
-  if (found) {
-    log('WARNING',`⚠️ Tweet already exists, ${username}: ${posting}`)
-    return 'Tweet already exists'
+function checkDuplicateTweets(username: string, posting: string) {
+  // Jika ini run pertama dan file belum ada, skip
+  try {
+    if (!hasRunCollectOnce) {
+      const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
+      const data = JSON.parse(rawData);
+      // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek
+      const found = data.some((item: any) => {
+        return item.Posting === posting && item.Username === username;
+      });
+      if (found) {
+        log('WARNING', `⚠️ Tweet already exists, ${username}: ${posting}`);
+        return 'Tweet already exists';
+      }
+    }
+  } catch (err) {
+    return 'Skip check - first run';
   }
-  return 'Tweet not found'
+
+  // Kalau sudah pernah jalan dan file tersedia, lanjut cek biasa
+  try {
+    const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
+    const data = JSON.parse(rawData);
+    const found = data.some((item: any) => {
+      return item.Posting === posting && item.Username === username;
+    });
+    if (found) {
+      log('WARNING', `⚠️ Tweet already exists, ${username}: ${posting}`);
+      return 'Tweet already exists';
+    }
+    return 'Tweet not found';
+  } catch (err:any) {
+    // Jika file tidak bisa dibaca karena alasan lain
+    log('ERROR', `❌ Gagal membaca tweets.json: ${err.message}`);
+    return 'Skip check - read error';
+  }
 }
+
 
 /**
  * Membersihkan dan menormalkan teks agar siap untuk dicek duplikat.
@@ -176,7 +201,7 @@ async function collectUniqueTweetsToCSV(count: number) {
     await saveToJSON(tweetObject);
       log("INFO", `📊 Fungsi extractTweetDataAtIndex telah dijalankan sebanyak ${extractTweetCallCount} kali.`)
     }
-
+    hasRunCollectOnce = true;
     log("INFO", "✅ Semua tweet unik telah diproses dan disimpan.")
   } catch (err: any) {
     // console.error("❌ Terjadi kesalahan:", err.message);
