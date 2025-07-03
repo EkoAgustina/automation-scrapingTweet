@@ -1,12 +1,14 @@
 import { keyElement } from "../mappings/mapper.ts";
 import { swipeUpElDisplayed, swipeUpwithTime } from './baseSwipe.ts';
 import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
+import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
 
 
-const seenTweetCombos = new Set<string>();
+
 let extractTweetCallCount = 0;
 let hasRunCollectOnce = false;
+// let similarTweets = new Set<string>();
 
 function checkDuplicateTweets(username: string, posting: string) {
   // Jika ini run pertama dan file belum ada, skip
@@ -19,8 +21,11 @@ function checkDuplicateTweets(username: string, posting: string) {
         return item.Posting === posting && item.Username === username;
       });
       if (found) {
-        log('WARNING', `⚠️ Tweet already exists, ${username}: ${posting}`);
-        return 'Tweet already exists';
+        if (extractTweetCallCount !== 0){
+          log('WARNING', `⚠️[${extractTweetCallCount}] Tweet already exists, ${username}: ${posting}`);
+          globalVariables.similarTweets.add(`⚠️[${extractTweetCallCount}] Tweet already exists, ${username}: ${posting}`)
+          return 'Tweet already exists';
+        }
       }
     }
   } catch (err) {
@@ -55,19 +60,19 @@ function checkDuplicateTweets(username: string, posting: string) {
  * @param text Teks asli dari elemen web.
  * @returns Teks hasil normalisasi.
  */
-function normalizeTweetText(text: string): string {
-  // return text
-  //   .replace(/\s+/g, ' ')              // Gabungkan spasi jadi satu spasi
-  //   .replace(/[^\x20-\x7E]+/g, '')     // Hapus karakter non-ASCII
-  //   .trim()
-  //   .toLowerCase();
-  return text
-    .replace(/\s+/g, ' ')
-    .replace(/[\u200B-\u200D\uFEFF]/g, '') // invisible chars
-    .replace(/[^\x20-\x7E]+/g, '') // non-ASCII
-    .trim()
-    .toLowerCase();
-}
+// function normalizeTweetText(text: string): string {
+//   // return text
+//   //   .replace(/\s+/g, ' ')              // Gabungkan spasi jadi satu spasi
+//   //   .replace(/[^\x20-\x7E]+/g, '')     // Hapus karakter non-ASCII
+//   //   .trim()
+//   //   .toLowerCase();
+//   return text
+//     .replace(/\s+/g, ' ')
+//     .replace(/[\u200B-\u200D\uFEFF]/g, '') // invisible chars
+//     .replace(/[^\x20-\x7E]+/g, '') // non-ASCII
+//     .trim()
+//     .toLowerCase();
+// }
 
 /**
  * Mengambil data tweet lengkap dari satu elemen tweet berdasarkan index.
@@ -98,7 +103,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
     }
 
     // Cek apakah tweet sudah pernah diproses (username + posting)
-    const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
+    // const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
     // if (seenTweetCombos.has(tweetKey)) {
     //   log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
     //   return [];
@@ -108,7 +113,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
     }
 
     // Simpan tweet sebagai yang sudah pernah dilihat
-    seenTweetCombos.add(tweetKey);
+    // seenTweetCombos.add(tweetKey);
 
     // Ambil nama akun
     const accountNameEl = await tweet.$(`.${keyElement("aboutPage:accountName")}`);
@@ -203,6 +208,7 @@ async function collectUniqueTweetsToCSV(count: number) {
     }
     hasRunCollectOnce = true;
     log("INFO", "✅ Semua tweet unik telah diproses dan disimpan.")
+    await browser.pause(1000);
   } catch (err: any) {
     // console.error("❌ Terjadi kesalahan:", err.message);
     log("ERROR", `❌ Terjadi kesalahan:, ${err.message}`)
@@ -220,9 +226,6 @@ async function runTweetScrapingLoops(loopCount: number) {
   try {
     for (let i = 1; i <= loopCount; i++) {
       await collectUniqueTweetsToCSV(5);
-      console.log("------------------tweet key------------------")
-      console.log(seenTweetCombos)
-      console.log("------------------tweet key------------------")
     }
   } catch (err: any) {
     console.error("❌ Terjadi error di loop utama:", err.message);

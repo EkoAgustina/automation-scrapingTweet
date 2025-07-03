@@ -18,6 +18,12 @@ export default class globalVariables {
   static services: any;
 
   /**
+   * Similar tweets collection.
+   * @type {any}
+   */
+  static similarTweets: Set<string> = new Set<string>();
+
+  /**
    * URL before the step execution.
    * @type {any}
    */

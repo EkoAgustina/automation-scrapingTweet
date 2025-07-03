@@ -30,6 +30,11 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
     return navigator.userAgent;
 });
 log("INFO", userAgent)
+ globalVariables.similarTweets.forEach((tweet) => {
+  console.log("****------- similarTweets ****-------")
+    console.log(tweet);
+  console.log("****------- similarTweets ****-------")
+  });
 
   if (result.error) {
     await takeScreenshot(`failed_${world.pickle.name}`)
