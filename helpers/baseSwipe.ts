@@ -41,6 +41,16 @@ async function swipeUpElDisplayed (locator:string) : Promise<string> {
     }
 }
 
+
+async function swipeUpIntoView (locator:string) : Promise<string> {
+    try {
+       (await findElement(locator)).scrollIntoView()
+        return '200'
+    } catch (err:any) {
+        log("ERROR", err.message)
+        throw err
+    }
+}
 /**
  * Simulates a swipe up action on the screen for a given duration.
  * @param {number} time - The duration of the swipe action, specified in the number of repetitions.
@@ -59,4 +69,4 @@ async function swipeUpwithTime (duration:number) {
     }
 }
 
-export {swipeUpElDisplayed, swipeUpwithTime };
+export {swipeUpElDisplayed, swipeUpwithTime, swipeUpIntoView };

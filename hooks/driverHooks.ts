@@ -28,13 +28,15 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
 
   const userAgent = await browser.execute(() => {
     return navigator.userAgent;
-});
-log("INFO", userAgent)
- globalVariables.similarTweets.forEach((tweet) => {
-  console.log("****------- similarTweets ****-------")
-    console.log(tweet);
-  console.log("****------- similarTweets ****-------")
   });
+  log("INFO", userAgent)
+  if (globalVariables.similarTweets.size === 0) {
+    console.log("No similar tweets found.");
+  } else {
+    console.log("Similar Tweets:");
+    globalVariables.similarTweets.forEach((tweet) => console.log(`- ${tweet}`));
+  }
+
 
   if (result.error) {
     await takeScreenshot(`failed_${world.pickle.name}`)

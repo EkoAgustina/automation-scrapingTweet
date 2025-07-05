@@ -17,7 +17,7 @@ Given(/^User open "(.*)"$/, async (page: string) => {
     try {
         await baseOpenBrowser(page);
         await pageLoad(5);
-        await swipeUpwithTime(1)
+        // await swipeUpwithTime(1)
     } catch (err: any) {
         log("ERROR", err.message)
         throw err
@@ -41,7 +41,7 @@ When(/^User click "(.*)"$/, async (locator) => {
 
 When(/^Users do scraping twitter data$/,async () => {
     try {
-        await runTweetScrapingLoops(120)
+        await runTweetScrapingLoops(85)
     } catch (err: any) {
         log("ERROR", err.message)
         throw err

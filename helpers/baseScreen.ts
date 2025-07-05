@@ -257,6 +257,30 @@ async function actionEnter(): Promise<void> {
   }
 }
 
+// async function saveToCSV(row: string, baseName = 'tweets') {
+//   const folderPath = path.join('reporter');
+//   if (!existsSync(folderPath)) {
+//     mkdirSync(folderPath, { recursive: true });
+//   }
+
+//   const filePath = path.join(folderPath, `${baseName}.csv`);
+
+//   try {
+//     // kalau file belum ada, tulis header dulu
+//     if (!existsSync(filePath)) {
+//       const header = 'Username,Account,Tanggal,Posting,Replies,Reposts,Likes\n';
+//       await fs.writeFile(filePath, header, 'utf-8');
+//     }
+
+//     // lalu append baris baru
+//     await fs.appendFile(filePath, row + '\n', 'utf-8');
+//     console.log(`✅ Baris ditambahkan ke: ${filePath}`);
+//   } catch (err) {
+//     console.error(`❌ Gagal simpan CSV: ${err}`);
+//     throw err;
+//   }
+// }
+
 async function saveToCSV(row: string, baseName = 'tweets') {
   const folderPath = path.join('reporter');
   if (!existsSync(folderPath)) {
@@ -266,9 +290,9 @@ async function saveToCSV(row: string, baseName = 'tweets') {
   const filePath = path.join(folderPath, `${baseName}.csv`);
 
   try {
-    // kalau file belum ada, tulis header dulu
+    // kalau file belum ada, tulis header baru
     if (!existsSync(filePath)) {
-      const header = 'Username,Account,Tanggal,Posting,Replies,Reposts,Likes\n';
+      const header = 'Username,Tanggal,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
       await fs.writeFile(filePath, header, 'utf-8');
     }
 
@@ -280,6 +304,7 @@ async function saveToCSV(row: string, baseName = 'tweets') {
     throw err;
   }
 }
+
 
 async function saveToJSON(obj: Record<string, string>, baseName = 'tweets') {
   const folderPath = path.join('reporter');

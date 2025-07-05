@@ -5,14 +5,25 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// type Tweet = {
+//   Username: string;
+//   Account: string;
+//   Tanggal: string;
+//   Posting: string;
+//   Replies: string;
+//   Reposts: string;
+//   Likes: string;
+// };
+
 type Tweet = {
-  Username: string;
-  Account: string;
-  Tanggal: string;
-  Posting: string;
-  Replies: string;
-  Reposts: string;
-  Likes: string;
+ username: string,
+        tanggal: string,
+        textTweet: string,
+        replies: string,
+        reposts: string,
+        likes: string,
+        interactionType: string,
+        targetUsername: string
 };
 
 const filePath = path.join(__dirname, 'reporter', 'tweets.json');
@@ -22,7 +33,7 @@ const data: Tweet[] = JSON.parse(raw);
 const seen = new Map<string, number[]>();
 
 data.forEach((item, index) => {
-  const key = `${item.Username.trim()}|${item.Posting.trim()}`;
+  const key = `${item.username.trim()}|${item.textTweet.trim()}`;
   if (!seen.has(key)) {
     seen.set(key, [index]);
   } else {
