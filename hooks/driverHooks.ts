@@ -37,6 +37,8 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
     globalVariables.similarTweets.forEach((tweet) => console.log(`- ${tweet}`));
   }
 
+  console.log(`Jumlah tweet yang dicheck: ${globalVariables.tweetCountCheck}`)
+
 
   if (result.error) {
     await takeScreenshot(`failed_${world.pickle.name}`)

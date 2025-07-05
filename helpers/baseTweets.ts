@@ -92,6 +92,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
   await browser.pause(2000); // Delay untuk memastikan DOM stabil
   extractTweetCallCount++; // Hitung setiap kali fungsi ini dipanggil
+  globalVariables.tweetCountCheck ++
   let interactionType;
 
   for (const tweet of tweetArticles) {

@@ -23,6 +23,8 @@ export default class globalVariables {
    */
   static similarTweets: Set<string> = new Set<string>();
 
+  static tweetCountCheck = 0
+
   /**
    * URL before the step execution.
    * @type {any}
