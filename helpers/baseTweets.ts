@@ -102,22 +102,31 @@ function convertDate(dateStr: string) {
   return `${day} ${indonesianMonth} 2025`;
 }
 
+// const normalizeTextTweet = (textTweet: string): string => {
+//   return textTweet
+//     .split('\n')                       // Pisah berdasarkan newline
+//     .map(line => line.trim())         // Hilangkan spasi di awal/akhir setiap baris
+//     .filter(line => line.length > 0)  // Hapus baris kosong
+//     .join(' ')                        // Gabungkan dengan spasi
+//     .replace(/\s+([?.!])/g, '$1');    // Hapus spasi sebelum tanda baca
+// };
+
 
 async function getTweetTextData(tweet: WebdriverIO.Element) {
 
   const usernameEl = (await tweetGetText(tweet, `.${keyElement("tweets:username")}`))
-  const postingEl = await tweetGetText(tweet, `.${keyElement("tweets:posting")}`)
+  const textTweetEl = await tweetGetText(tweet, `.${keyElement("tweets:posting")}`)
   const timeEl = await tweetGetText(tweet, `.${keyElement("tweets:postingTime")}`)
 
   const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:username")}`)
   if (swipeCheckUsername !== '200') throw new Error("Tweet tidak ditemukan");
 
   const username = usernameEl ? usernameEl.trim() : '';
-  const posting = postingEl ? postingEl.trim() : '';
+  const textTweet = textTweetEl ? textTweetEl.trim() : '';
   const tgl = timeEl ? timeEl.trim() : '';
   const date = convertDate(tgl)
 
-  return { username, posting, date };
+  return { username, textTweet, date };
 }
 
 async function getTweetStats(tweet: WebdriverIO.Element) {
@@ -178,18 +187,18 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 
   for (const tweet of tweetArticles) {
 
-    const { username, posting, date } = await getTweetTextData(tweet);
-    if (!username || !posting) return [];
+    const { username, textTweet, date } = await getTweetTextData(tweet);
+    if (!username || !textTweet) return [];
 
-    if (checkDuplicateTweets(username, posting) === 'Tweet already exists') return [];
+    if (checkDuplicateTweets(username, textTweet) === 'Tweet already exists') return [];
 
     // const replyingToEl = await tweet.$(`.${keyElement("tweets:replyingTo")}`);
     // const replyingTo = replyingToEl ? (await replyingToEl.getText()).trim() : 'Empty';
 
     const { replies, reposts, likes, replyingTo, tweetQuotes } = await getTweetStats(tweet);
-    const { interactionType, setTargetUsername } = getInteractionInfo(posting, replyingTo, tweetQuotes);
+    const { interactionType, setTargetUsername } = getInteractionInfo(textTweet, replyingTo, tweetQuotes);
 
-    const objTweets = [username, date, posting, replies, reposts, likes, interactionType, setTargetUsername];
+    const objTweets = [username, date, textTweet, replies, reposts, likes, interactionType, setTargetUsername];
     return objTweets;
   }
 
