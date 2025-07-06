@@ -25,29 +25,9 @@ export default class globalVariables {
 
   static tweetCountCheck = 0
 
-  /**
-   * URL before the step execution.
-   * @type {any}
-   */
-  static urlBeforeStep: any;
+  static scrapingReportsName: any;
 
-  /**
-   * URL after the step execution.
-   * @type {any}
-   */
-  static urlAfterStep: any;
-
-  /**
-   * Feature name before the step execution.
-   * @type {any}
-   */
-  static featureNameBefore: any;
-
-  /**
-   * Feature name after the step execution.
-   * @type {any}
-   */
-  static featureNameAfter: any;
+  static tweetsCount: any
 
   /**
    * Path to the Allure environment properties file.

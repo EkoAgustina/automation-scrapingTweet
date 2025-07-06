@@ -1,10 +1,3 @@
-# aboutPageTitle: 'By.id => aboutPageTitle' 
-# aboutContent: 'By.id => aboutContentTitle'
-# # username: 'By.xpath => (//article//div[@dir="ltr"]//span[starts-with(text(),"@")])[12]'
-# username: 'By.xpath => (//article//div[@dir="ltr"]//span[starts-with(text(),"@")])'
-# accountName: 'By.xpath => (//div[@class="css-175oi2r r-1awozwy r-18u37iz r-1wbh5a2 r-dnmrzs"]/div/a/div/div/span/span)'
-# postingTime: 'By.xpath => (//div[@class="css-175oi2r r-18u37iz r-1q142lx"]/a/time)'
-# posting: 'By.xpath => (//div[@data-testid="tweetText"])'
 
 tweetArticles: 'By.xpath => (//article)'
 username: 'By.xpath => //span[starts-with(text(),"@")]'

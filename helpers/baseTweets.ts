@@ -3,6 +3,7 @@ import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from '.
 import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
+import { tweetGetText } from "./baseGet.ts";
 
 
 
@@ -10,11 +11,38 @@ let extractTweetCallCount = 0;
 let hasRunCollectOnce = false;
 // let similarTweets = new Set<string>();
 
+function checkIfTweetLimitReached(maxLength: number): boolean {
+  try {
+    const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+    const data = JSON.parse(rawData);
+
+    if (!Array.isArray(data)) {
+      log("ERROR", "JSON file does not contain arrays")
+      // return '❌ File JSON tidak berisi array.';
+      return false
+    }
+
+    globalVariables.tweetsCount = data.length
+
+    if (data.length >= maxLength) {
+      log("INFO", `Tweets collected have reached ${maxLength} according to your wishes`)
+      return true
+    } else {
+      log("INFO", `Tweets collected have not reached ${maxLength}`)
+      return false
+    }
+  } catch (err: any) {
+    log("ERROR", `An error occurred: ${err.message}`)
+    return false
+  }
+}
+
+
 function checkDuplicateTweets(username: string, posting: string) {
   // Jika ini run pertama dan file belum ada, skip
   try {
     if (!hasRunCollectOnce) {
-      const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
+      const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
       const data = JSON.parse(rawData);
       // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek
       const found = data.some((item: any) => {
@@ -34,7 +62,7 @@ function checkDuplicateTweets(username: string, posting: string) {
 
   // Kalau sudah pernah jalan dan file tersedia, lanjut cek biasa
   try {
-    const rawData = fs.readFileSync('reporter/tweets.json', 'utf-8');
+    const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
     const data = JSON.parse(rawData);
     const found = data.some((item: any) => {
       return item.textTweet === posting && item.username === username;
@@ -47,7 +75,7 @@ function checkDuplicateTweets(username: string, posting: string) {
     return 'Tweet not found';
   } catch (err:any) {
     // Jika file tidak bisa dibaca karena alasan lain
-    log('ERROR', `❌ Gagal membaca tweets.json: ${err.message}`);
+    log('ERROR', `❌ Failed to read ${globalVariables.scrapingReportsName}.json: ${err.message}`);
     return 'Skip check - read error';
   }
 }
@@ -67,45 +95,69 @@ async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallbac
   }
 }
 
+function convertDate(dateStr: string) {
+  const [, day] = dateStr.split(" ");
+  const indonesianMonth = "Maret"; // hardcoded karena hanya "Mar" seperti penjelasanmu
+
+  return `${day} ${indonesianMonth} 2025`;
+}
+
+
 async function getTweetTextData(tweet: WebdriverIO.Element) {
-  const usernameEl = await tweet.$(`.${keyElement("aboutPage:username")}`);
-  const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
-  const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
 
-  const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("aboutPage:username")}`)
+  const usernameEl = (await tweetGetText(tweet, `.${keyElement("tweets:username")}`))
+  const postingEl = await tweetGetText(tweet, `.${keyElement("tweets:posting")}`)
+  const timeEl = await tweetGetText(tweet, `.${keyElement("tweets:postingTime")}`)
+
+  const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:username")}`)
   if (swipeCheckUsername !== '200') throw new Error("Tweet tidak ditemukan");
-  const username = usernameEl ? (await usernameEl.getText()).trim() : '';
 
-  const posting = postingEl ? (await postingEl.getText()).trim() : '';
-  const tanggal = timeEl ? (await timeEl.getText()).trim() : '';
+  const username = usernameEl ? usernameEl.trim() : '';
+  const posting = postingEl ? postingEl.trim() : '';
+  const tgl = timeEl ? timeEl.trim() : '';
+  const date = convertDate(tgl)
 
-  return { username, posting, tanggal };
+  return { username, posting, date };
 }
 
 async function getTweetStats(tweet: WebdriverIO.Element) {
-  const replies = await getSafeText(tweet, `.${keyElement("aboutPage:replies")}`);
-  const reposts = await getSafeText(tweet, `.${keyElement("aboutPage:reposts")}`);
-  const likes = await getSafeText(tweet, `.${keyElement("aboutPage:likes")}`);
-  const replyingTo = await getSafeText(tweet, `.${keyElement("aboutPage:replyingTo")}`, 'Empty')
+  const replies = await getSafeText(tweet, `.${keyElement("tweets:replies")}`);
+  const reposts = await getSafeText(tweet, `.${keyElement("tweets:reposts")}`);
+  const likes = await getSafeText(tweet, `.${keyElement("tweets:likes")}`);
+  const replyingTo = await getSafeText(tweet, `.${keyElement("tweets:replyingTo")}`, 'NA')
+  const tweetQuotes = await getSafeText(tweet, `.${keyElement("tweets:tweetQuetes")}`, 'NA')
 
-  return { replies, reposts, likes, replyingTo };
+  return { replies, reposts, likes, replyingTo, tweetQuotes };
 }
 
-function getInteractionInfo(posting: string, replyingTo: string) {
+function getInteractionInfo(posting: string, replyingTo: string, tweetQuetes: string)  {
   const usernameMention = extractUsername(posting);
   const usernameReplyingTo = extractUsername(replyingTo);
+  const usernameTweetQuotes = extractUsername(tweetQuetes); 
 
   if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
     return {
       interactionType: "Mention and Reply",
       setTargetUsername: usernameMention.join(" ") + " " + usernameReplyingTo.join(" ")
     };
-  } else if (usernameReplyingTo.length > 0) {
+  } else if (usernameMention.length > 0 && usernameTweetQuotes.length > 0) {
+    return {
+      interactionType: "Mention and Quotes",
+      setTargetUsername: usernameMention.join(" ") + " " + usernameTweetQuotes.join(" ")
+    };
+  } else if (usernameTweetQuotes.length > 0) {
+    return {
+      interactionType: "Quotes",
+      setTargetUsername: usernameTweetQuotes.join(" ")
+    };
+  } 
+  else if (usernameReplyingTo.length > 0) {
     return {
       interactionType: "Reply",
       setTargetUsername: usernameReplyingTo.join(" ")
     };
-  } else if (usernameMention.length > 0) {
+  } 
+  else if (usernameMention.length > 0) {
     return {
       interactionType: "Mention",
       setTargetUsername: usernameMention.join(" ")
@@ -113,31 +165,31 @@ function getInteractionInfo(posting: string, replyingTo: string) {
   } else {
     return {
       interactionType: "Regular post",
-      setTargetUsername: ""
+      setTargetUsername: "NA"
     };
   }
 }
 
 async function extractTweetDataAtIndex(index: number): Promise<string[]> {
-  const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
+  const tweetArticles = await $$(`${keyElement("tweets:tweetArticles")}[${index}]`);
   extractTweetCallCount++;
   globalVariables.tweetCountCheck ++
   await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
 
-    const { username, posting, tanggal } = await getTweetTextData(tweet);
+    const { username, posting, date } = await getTweetTextData(tweet);
     if (!username || !posting) return [];
 
     if (checkDuplicateTweets(username, posting) === 'Tweet already exists') return [];
 
-    // const replyingToEl = await tweet.$(`.${keyElement("aboutPage:replyingTo")}`);
+    // const replyingToEl = await tweet.$(`.${keyElement("tweets:replyingTo")}`);
     // const replyingTo = replyingToEl ? (await replyingToEl.getText()).trim() : 'Empty';
 
-    const { replies, reposts, likes, replyingTo } = await getTweetStats(tweet);
-    const { interactionType, setTargetUsername } = getInteractionInfo(posting, replyingTo);
+    const { replies, reposts, likes, replyingTo, tweetQuotes } = await getTweetStats(tweet);
+    const { interactionType, setTargetUsername } = getInteractionInfo(posting, replyingTo, tweetQuotes);
 
-    const objTweets = [username, tanggal, posting, replies, reposts, likes, interactionType, setTargetUsername];
+    const objTweets = [username, date, posting, replies, reposts, likes, interactionType, setTargetUsername];
     return objTweets;
   }
 
@@ -146,144 +198,27 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 
 
 /**
- * Mengambil data tweet lengkap dari satu elemen tweet berdasarkan index.
- * Meliputi: username, nama akun, tanggal, postingan, replies, reposts, likes.
- * 
- * @param index Index dari elemen tweet (berbasis DOM) yang ingin diambil datanya.
- * @returns Array string berisi data tweet, atau array kosong jika data kosong atau duplikat.
- */
-// async function extractTweetDataAtIndex(index: number): Promise<string[]> {
-//   const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
-//   await browser.pause(2000); // Delay untuk memastikan DOM stabil
-//   extractTweetCallCount++; // Hitung setiap kali fungsi ini dipanggil
-//   globalVariables.tweetCountCheck ++
-//   let interactionType;
-
-//   for (const tweet of tweetArticles) {
-//     // Ambil username
-//     const usernameEl = await tweet.$(`.${keyElement("aboutPage:username")}`);
-//     const username = usernameEl ? (await usernameEl.getText()).trim() : '';
-
-//     // Ambil konten tweet
-//     const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
-//     const rawPosting = postingEl ? await postingEl.getText() : '';
-//     const posting = rawPosting.trim();
-
-//     // Validasi isi
-//     if (!username || !posting) {
-//       log("INFO", `⚠️ Data kosong pada index ${index}, dilewati.`)
-//       return [];
-//     }
-
-//     // Cek apakah tweet sudah pernah diproses (username + posting)
-//     // const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
-//     // if (seenTweetCombos.has(tweetKey)) {
-//     //   log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
-//     //   return [];
-//     // }
-//     if (checkDuplicateTweets(username,posting) == 'Tweet already exists') {
-//       return [];
-//     }
-
-//     const usernameMention = extractUsername(posting)
-
-//     // Simpan tweet sebagai yang sudah pernah dilihat
-//     // seenTweetCombos.add(tweetKey);
-
-//     // Ambil nama akun
-//     // const accountNameEl = await tweet.$(`.${keyElement("aboutPage:accountName")}`);
-//     // const accountName = accountNameEl ? await accountNameEl.getText() : '';
-
-//     // Ambil waktu/tanggal posting
-//     const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
-//     const tanggal = timeEl ? await timeEl.getText() : '';
-
-//     // Ambil jumlah reply
-//     let replies = '0';
-    // try {
-    //   const repliesEl = await tweet.$(`.${keyElement("aboutPage:replies")}`);
-    //   if (repliesEl) replies = (await repliesEl.getText()).trim() || '0';
-    // } catch {
-    //   console.log(replies);
-    // }
-
-//     // Ambil jumlah repost
-    // let reposts = '0';
-    // try {
-    //   const repostsEl = await tweet.$(`.${keyElement("aboutPage:reposts")}`);
-    //   if (repostsEl) reposts = (await repostsEl.getText()).trim() || '0';
-    // } catch {
-    //   console.log(reposts);
-    // }
-
-//     // Ambil jumlah like
-//     let likes = '0';
-//     try {
-//       const likesEl = await tweet.$(`.${keyElement("aboutPage:likes")}`);
-//       if (likesEl) likes = (await likesEl.getText()).trim() || '0';
-//     } catch {
-//       console.log(likes);
-//     }
-
-//     // Ambil reply
-//     // let replyingTo = 'Empty';
-//     let replyingTo: string = "Empty"
-//     try {
-//       const replyingToEl = await tweet.$(`.${keyElement("aboutPage:replyingTo")}`);
-//       if (replyingToEl) replyingTo = (await replyingToEl.getText()).trim() || 'Empty';
-//     } catch {
-//       console.log(replyingTo);
-//     }
-//     const usernameReplyingTo = extractUsername(replyingTo)
-//     let setTargetUsername = ""
-
-//     if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
-//       interactionType = "Mention and Reply"
-//       setTargetUsername = usernameMention.join(" ") + usernameReplyingTo.join(" ")
-//     } else if (usernameReplyingTo.length > 0) {
-//       interactionType = 'Reply'
-//       setTargetUsername = usernameReplyingTo.join(" ")
-//     } else if (usernameMention.length > 0) {
-//       interactionType = "Mention"
-//       setTargetUsername = usernameMention.join(" ")
-//     }
-//     else {
-//       interactionType = 'Regular post'
-//     }
-
-//     // Susun data tweet
-//     const objTweets = [
-//       username,
-//       tanggal.trim(), 
-//       posting,
-//       replies,
-//       reposts,
-//       likes,
-//       interactionType,
-//       setTargetUsername
-//     ];
-//     return objTweets;
-//   }
-
-//   return [];
-// }
-
-/**
  * Mengambil dan menyimpan data tweet sebanyak `count` tweet unik ke file CSV.
  * Tweet akan di-scroll satu per satu berdasarkan index DOM.
  * 
  * @param count Jumlah tweet yang ingin diambil.
  */
-async function collectUniqueTweetsToCSV(count: number) {
+async function collectUniqueTweetsToCSV(count: number, tweetLimit = 5) {
   try {
-    for (let i = 1; i <= count; i++) {
-      // Pastikan tweet ada di viewport dengan swipe
-      const swipeCheck = await swipeUpElDisplayed(`${keyElement("aboutPage:tweetArticles")}[${i}]`);
-      if (swipeCheck !== '200') throw new Error("Tweet tidak ditemukan");
-      if (i % 4 === 0) await swipeUpwithTime(1)
-      if (i === count) await swipeUpwithTime(1)
+    if (checkIfTweetLimitReached(tweetLimit)) {
+      log("INFO", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
+      return;
+    }
 
-      // await swipeUpIntoView(`${keyElement("aboutPage:tweetArticles")}[${i}]`)
+    for (let i = 1; i <= count; i++) {
+      if (checkIfTweetLimitReached(tweetLimit)) {
+        log("INFO", `✅ Tweet limit of ${tweetLimit} reached during iteration ${i}. Stopping loop.`);
+        break;
+      }
+      const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
+      if (swipeCheck !== '200') throw new Error("Tweet not found");
+      if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
+      if (i === count) await swipeUpwithTime(1)
 
       // Ambil data tweet
       const tweetData = await extractTweetDataAtIndex(i);
@@ -295,10 +230,10 @@ async function collectUniqueTweetsToCSV(count: number) {
 
       // Simpan ke CSV (escape tanda kutip)
       const csvRow = tweetData.map(v => `"${v.replace(/"/g, '""')}"`).join(",");
-      await saveToCSV(csvRow);
+      await saveToCSV(csvRow, globalVariables.scrapingReportsName);
       const tweetObject = {
         username: tweetData[0],
-        tanggal: tweetData[1],
+        date: tweetData[1],
         textTweet: tweetData[2],
         replies: tweetData[3],
         reposts: tweetData[4],
@@ -307,14 +242,13 @@ async function collectUniqueTweetsToCSV(count: number) {
         targetUsername: tweetData[7]
 
         };
-    await saveToJSON(tweetObject);
-      log("INFO", `📊 Fungsi extractTweetDataAtIndex telah dijalankan sebanyak ${extractTweetCallCount} kali.`)
+    await saveToJSON(tweetObject, globalVariables.scrapingReportsName);
+      log("INFO", `The extractTweetDataAtIndex function has been executed ${extractTweetCallCount} times.`)
     }
     hasRunCollectOnce = true;
-    log("INFO", "✅ Semua tweet unik telah diproses dan disimpan.")
     await browser.pause(1000);
   } catch (err: any) {
-    log("ERROR", `❌ Terjadi kesalahan:, ${err.message}`)
+    log("ERROR", `An error occurred:, ${err.message}`)
     throw err;
   }
 }
@@ -328,12 +262,13 @@ async function collectUniqueTweetsToCSV(count: number) {
 async function runTweetScrapingLoops(loopCount: number) {
   try {
     for (let i = 1; i <= loopCount; i++) {
-      await collectUniqueTweetsToCSV(12);
+      await collectUniqueTweetsToCSV(11);
     }
   } catch (err: any) {
-    console.error("❌ Terjadi error di loop utama:", err.message);
+    log("ERROR", `An error occurred: ${err.message}`)
     throw err;
   }
 }
+
 
 export {runTweetScrapingLoops}

@@ -1,6 +1,6 @@
 import {log} from "./baseScreen.ts"
 import { browser} from '@wdio/globals'
-import { findElement } from "./baseScreen.ts"
+import { findElement,elWaitForExistTweet } from "./baseScreen.ts"
 
 
 /**
@@ -51,7 +51,7 @@ async function swipeUpElDisplayedCustom (tweet: WebdriverIO.Element, locator:str
         let attempts = 0;
         const maxAttempts = 5;
 
-        while (!await (await tweet.$(locator)).isDisplayed() ) {
+        while (!await elWaitForExistTweet(tweet, locator) ) {
             await browser.scroll(coordinateX,coordinateY)
             log("INFO", `Swipe attempts: ${attempts}`);
             await browser.pause(1000);

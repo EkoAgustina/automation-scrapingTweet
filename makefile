@@ -1,5 +1,5 @@
 # CUCUMBER TAGS
-CUCUMBER_TAGS=@scFifteenToSeventeen
+CUCUMBER_TAGS=@scrapingTweets
 
 # Host name
 DOCKER_HOSTNAME=192.168.0.107:4444

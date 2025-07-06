@@ -3,6 +3,19 @@ import globalVariables from "../resources/globalVariable.ts";
 import PropertiesReader from 'properties-reader';
 import { env } from 'process';
 import { browser } from '@wdio/globals'
+import { ITestCaseHookParameter } from "@cucumber/cucumber";
+
+
+async function hookBeforeScenario(world: ITestCaseHookParameter) {
+  const dateMatch = world.pickle.name.match(/\b(\d{1,2}) March 2025\b/);
+
+  if (dateMatch) {
+    const day = dateMatch[1].padStart(2, '0');
+    globalVariables.scrapingReportsName = `tweet_${day}_march_2025`;
+  } else {
+    log("WARNING", "No valid date found in scenario name.");
+  }
+}
 
 
 /**
@@ -22,7 +35,7 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
       return 'selenium/standalone-chrome'
     }
   }
-  globalVariables.featureNameAfter = world.gherkinDocument.feature.name
+  // globalVariables.featureNameAfter = world.gherkinDocument.feature.name
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
 
@@ -37,7 +50,10 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
     globalVariables.similarTweets.forEach((tweet) => console.log(`- ${tweet}`));
   }
 
-  console.log(`Jumlah tweet yang dicheck: ${globalVariables.tweetCountCheck}`)
+  console.log(`Count of posts checked: ${globalVariables.tweetCountCheck}`)
+
+  console.log(globalVariables.tweetsCount)
+  console.log(`${globalVariables.scrapingReportsName}.json ${globalVariables.tweetsCount} tweets`)
 
 
   if (result.error) {
@@ -45,4 +61,5 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
   }
 }
 
-export { hooksAfterScenario };
+
+export { hookBeforeScenario, hooksAfterScenario };

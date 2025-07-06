@@ -4,12 +4,6 @@ import logger from '@wdio/logger';
 import * as fs from 'node:fs/promises';
 import { existsSync, readdirSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// import { Key } from 'webdriverio'
-// import cucumberJson from 'wdio-cucumberjs-json-reporter';
 
 
 
@@ -95,6 +89,7 @@ async function baseOpenBrowser(url: string): Promise<void> {
     await browser.url(url);
 
     log('INFO', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
+    
     sleep(3)
   } catch (err:any) {
     log("ERROR", err.message)
@@ -123,6 +118,17 @@ async function elWaitForExist (locator:string) {
   } catch (err) {
     log('WARNING', (err as Error).message)
     sleep(2)
+  }
+}
+
+async function elWaitForExistTweet (tweet: WebdriverIO.Element, locator:string) {
+  try {
+    await browser.pause(2000)
+    await (await tweet.$(locator)).waitForExist({ timeout: 6500 })
+    return true
+  } catch (err) {
+    log('WARNING', (err as Error).message)
+    return false
   }
 }
 
@@ -257,31 +263,9 @@ async function actionEnter(): Promise<void> {
   }
 }
 
-// async function saveToCSV(row: string, baseName = 'tweets') {
-//   const folderPath = path.join('reporter');
-//   if (!existsSync(folderPath)) {
-//     mkdirSync(folderPath, { recursive: true });
-//   }
 
-//   const filePath = path.join(folderPath, `${baseName}.csv`);
 
-//   try {
-//     // kalau file belum ada, tulis header dulu
-//     if (!existsSync(filePath)) {
-//       const header = 'Username,Account,Tanggal,Posting,Replies,Reposts,Likes\n';
-//       await fs.writeFile(filePath, header, 'utf-8');
-//     }
-
-//     // lalu append baris baru
-//     await fs.appendFile(filePath, row + '\n', 'utf-8');
-//     console.log(`✅ Baris ditambahkan ke: ${filePath}`);
-//   } catch (err) {
-//     console.error(`❌ Gagal simpan CSV: ${err}`);
-//     throw err;
-//   }
-// }
-
-async function saveToCSV(row: string, baseName = 'tweets') {
+async function saveToCSV(row: string, baseName: string) {
   const folderPath = path.join('reporter');
   if (!existsSync(folderPath)) {
     mkdirSync(folderPath, { recursive: true });
@@ -292,7 +276,7 @@ async function saveToCSV(row: string, baseName = 'tweets') {
   try {
     // kalau file belum ada, tulis header baru
     if (!existsSync(filePath)) {
-      const header = 'Username,Tanggal,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
+      const header = 'Username,Date,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
       await fs.writeFile(filePath, header, 'utf-8');
     }
 
@@ -306,7 +290,7 @@ async function saveToCSV(row: string, baseName = 'tweets') {
 }
 
 
-async function saveToJSON(obj: Record<string, string>, baseName = 'tweets') {
+async function saveToJSON(obj: Record<string, string>, baseName: string) {
   const folderPath = path.join('reporter');
   if (!existsSync(folderPath)) {
     mkdirSync(folderPath, { recursive: true });
@@ -335,46 +319,7 @@ async function saveToJSON(obj: Record<string, string>, baseName = 'tweets') {
   }
 }
 
-async function reportsChecker () {
-  type Tweet = {
-  Username: string;
-  Account: string;
-  Tanggal: string;
-  Posting: string;
-  Replies: string;
-  Reposts: string;
-  Likes: string;
-};
-
-const filePath = path.join(__dirname, 'reporter', 'tweets.json');
-const raw = fs.readFile(filePath, 'utf-8');
-const data: Tweet[] = JSON.parse(await raw);
-
-const seen = new Map<string, number[]>();
-
-data.forEach((item, index) => {
-  const key = `${item.Username.trim()}|${item.Posting.trim()}`;
-  if (!seen.has(key)) {
-    seen.set(key, [index]);
-  } else {
-    seen.get(key)!.push(index);
-  }
-});
-
-let found = false;
-seen.forEach((indexes, key) => {
-  if (indexes.length > 1) {
-    // console.warn(`⚠️ Duplikat ditemukan untuk "${key}" pada index: ${indexes.join(', ')} \n`);
-    log("WARNING", `⚠️ Duplikat ditemukan untuk "${key}" pada index: ${indexes.join(', ')} \n`)
-    found = true;
-  }
-});
-
-if (!found) {
-  // console.log('✅ Tidak ditemukan duplikat berdasarkan Username + Posting.');
-  log("INFO",'✅ Tidak ditemukan duplikat berdasarkan Username + Posting.')
-}
-}
 
 
-export {saveToJSON, reportsChecker, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, scrollIntoView, getCurrentDate, cleanDirectory, log, customGeolocation, actionEnter, setBrowserSize}
+
+export {elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, scrollIntoView, getCurrentDate, cleanDirectory, log, customGeolocation, actionEnter, setBrowserSize}
