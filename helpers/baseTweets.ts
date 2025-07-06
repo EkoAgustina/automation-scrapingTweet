@@ -58,28 +58,89 @@ function extractUsername(tweet: string): string[] {
   return usernames ? usernames : [];
 }
 
+async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallback = '0'): Promise<string> {
+  try {
+    const el = await tweet.$(selector);
+    return el ? (await el.getText()).trim() || fallback : fallback;
+  } catch {
+    return fallback;
+  }
+}
 
-/**
- * Membersihkan dan menormalkan teks agar siap untuk dicek duplikat.
- * - Menghapus karakter aneh/tak kasat mata.
- * - Merapikan spasi dan mengubah ke huruf kecil.
- * 
- * @param text Teks asli dari elemen web.
- * @returns Teks hasil normalisasi.
- */
-// function normalizeTweetText(text: string): string {
-//   // return text
-//   //   .replace(/\s+/g, ' ')              // Gabungkan spasi jadi satu spasi
-//   //   .replace(/[^\x20-\x7E]+/g, '')     // Hapus karakter non-ASCII
-//   //   .trim()
-//   //   .toLowerCase();
-//   return text
-//     .replace(/\s+/g, ' ')
-//     .replace(/[\u200B-\u200D\uFEFF]/g, '') // invisible chars
-//     .replace(/[^\x20-\x7E]+/g, '') // non-ASCII
-//     .trim()
-//     .toLowerCase();
-// }
+async function getTweetTextData(tweet: WebdriverIO.Element) {
+  const usernameEl = await tweet.$(`.${keyElement("aboutPage:username")}`);
+  const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
+  const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
+
+  const username = usernameEl ? (await usernameEl.getText()).trim() : '';
+  const posting = postingEl ? (await postingEl.getText()).trim() : '';
+  const tanggal = timeEl ? (await timeEl.getText()).trim() : '';
+
+  return { username, posting, tanggal };
+}
+
+async function getTweetStats(tweet: WebdriverIO.Element) {
+  const replies = await getSafeText(tweet, `.${keyElement("aboutPage:replies")}`);
+  const reposts = await getSafeText(tweet, `.${keyElement("aboutPage:reposts")}`);
+  const likes = await getSafeText(tweet, `.${keyElement("aboutPage:likes")}`);
+  const replyingTo = await getSafeText(tweet, `.${keyElement("aboutPage:replyingTo")}`, 'Empty')
+
+  return { replies, reposts, likes, replyingTo };
+}
+
+function getInteractionInfo(posting: string, replyingTo: string) {
+  const usernameMention = extractUsername(posting);
+  const usernameReplyingTo = extractUsername(replyingTo);
+
+  if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
+    return {
+      interactionType: "Mention and Reply",
+      setTargetUsername: usernameMention.join(" ") + " " + usernameReplyingTo.join(" ")
+    };
+  } else if (usernameReplyingTo.length > 0) {
+    return {
+      interactionType: "Reply",
+      setTargetUsername: usernameReplyingTo.join(" ")
+    };
+  } else if (usernameMention.length > 0) {
+    return {
+      interactionType: "Mention",
+      setTargetUsername: usernameMention.join(" ")
+    };
+  } else {
+    return {
+      interactionType: "Regular post",
+      setTargetUsername: ""
+    };
+  }
+}
+
+async function extractTweetDataAtIndex(index: number): Promise<string[]> {
+  const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
+  extractTweetCallCount++;
+  globalVariables.tweetCountCheck ++
+  await browser.pause(3000);
+
+  for (const tweet of tweetArticles) {
+
+    const { username, posting, tanggal } = await getTweetTextData(tweet);
+    if (!username || !posting) return [];
+
+    if (checkDuplicateTweets(username, posting) === 'Tweet already exists') return [];
+
+    // const replyingToEl = await tweet.$(`.${keyElement("aboutPage:replyingTo")}`);
+    // const replyingTo = replyingToEl ? (await replyingToEl.getText()).trim() : 'Empty';
+
+    const { replies, reposts, likes, replyingTo } = await getTweetStats(tweet);
+    const { interactionType, setTargetUsername } = getInteractionInfo(posting, replyingTo);
+
+    const objTweets = [username, tanggal, posting, replies, reposts, likes, interactionType, setTargetUsername];
+    return objTweets;
+  }
+
+  return [];
+}
+
 
 /**
  * Mengambil data tweet lengkap dari satu elemen tweet berdasarkan index.
@@ -88,121 +149,121 @@ function extractUsername(tweet: string): string[] {
  * @param index Index dari elemen tweet (berbasis DOM) yang ingin diambil datanya.
  * @returns Array string berisi data tweet, atau array kosong jika data kosong atau duplikat.
  */
-async function extractTweetDataAtIndex(index: number): Promise<string[]> {
-  const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
-  await browser.pause(2000); // Delay untuk memastikan DOM stabil
-  extractTweetCallCount++; // Hitung setiap kali fungsi ini dipanggil
-  globalVariables.tweetCountCheck ++
-  let interactionType;
+// async function extractTweetDataAtIndex(index: number): Promise<string[]> {
+//   const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
+//   await browser.pause(2000); // Delay untuk memastikan DOM stabil
+//   extractTweetCallCount++; // Hitung setiap kali fungsi ini dipanggil
+//   globalVariables.tweetCountCheck ++
+//   let interactionType;
 
-  for (const tweet of tweetArticles) {
-    // Ambil username
-    const usernameEl = await tweet.$(`.${keyElement("aboutPage:username")}`);
-    const username = usernameEl ? (await usernameEl.getText()).trim() : '';
+//   for (const tweet of tweetArticles) {
+//     // Ambil username
+//     const usernameEl = await tweet.$(`.${keyElement("aboutPage:username")}`);
+//     const username = usernameEl ? (await usernameEl.getText()).trim() : '';
 
-    // Ambil konten tweet
-    const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
-    const rawPosting = postingEl ? await postingEl.getText() : '';
-    const posting = rawPosting.trim();
+//     // Ambil konten tweet
+//     const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
+//     const rawPosting = postingEl ? await postingEl.getText() : '';
+//     const posting = rawPosting.trim();
 
-    // Validasi isi
-    if (!username || !posting) {
-      log("INFO", `⚠️ Data kosong pada index ${index}, dilewati.`)
-      return [];
-    }
+//     // Validasi isi
+//     if (!username || !posting) {
+//       log("INFO", `⚠️ Data kosong pada index ${index}, dilewati.`)
+//       return [];
+//     }
 
-    // Cek apakah tweet sudah pernah diproses (username + posting)
-    // const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
-    // if (seenTweetCombos.has(tweetKey)) {
-    //   log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
-    //   return [];
-    // }
-    if (checkDuplicateTweets(username,posting) == 'Tweet already exists') {
-      return [];
-    }
+//     // Cek apakah tweet sudah pernah diproses (username + posting)
+//     // const tweetKey = `${username.toLowerCase()}|${normalizeTweetText(posting)}`;
+//     // if (seenTweetCombos.has(tweetKey)) {
+//     //   log("INFO", `🔁 Duplikat total ditemukan (username + postingan) di index ${index}. Skip.`)
+//     //   return [];
+//     // }
+//     if (checkDuplicateTweets(username,posting) == 'Tweet already exists') {
+//       return [];
+//     }
 
-    const usernameMention = extractUsername(posting)
+//     const usernameMention = extractUsername(posting)
 
-    // Simpan tweet sebagai yang sudah pernah dilihat
-    // seenTweetCombos.add(tweetKey);
+//     // Simpan tweet sebagai yang sudah pernah dilihat
+//     // seenTweetCombos.add(tweetKey);
 
-    // Ambil nama akun
-    // const accountNameEl = await tweet.$(`.${keyElement("aboutPage:accountName")}`);
-    // const accountName = accountNameEl ? await accountNameEl.getText() : '';
+//     // Ambil nama akun
+//     // const accountNameEl = await tweet.$(`.${keyElement("aboutPage:accountName")}`);
+//     // const accountName = accountNameEl ? await accountNameEl.getText() : '';
 
-    // Ambil waktu/tanggal posting
-    const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
-    const tanggal = timeEl ? await timeEl.getText() : '';
+//     // Ambil waktu/tanggal posting
+//     const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
+//     const tanggal = timeEl ? await timeEl.getText() : '';
 
-    // Ambil jumlah reply
-    let replies = '0';
-    try {
-      const repliesEl = await tweet.$(`.${keyElement("aboutPage:replies")}`);
-      if (repliesEl) replies = (await repliesEl.getText()).trim() || '0';
-    } catch {
-      console.log(replies);
-    }
+//     // Ambil jumlah reply
+//     let replies = '0';
+//     try {
+//       const repliesEl = await tweet.$(`.${keyElement("aboutPage:replies")}`);
+//       if (repliesEl) replies = (await repliesEl.getText()).trim() || '0';
+//     } catch {
+//       console.log(replies);
+//     }
 
-    // Ambil jumlah repost
-    let reposts = '0';
-    try {
-      const repostsEl = await tweet.$(`.${keyElement("aboutPage:reposts")}`);
-      if (repostsEl) reposts = (await repostsEl.getText()).trim() || '0';
-    } catch {
-      console.log(reposts);
-    }
+//     // Ambil jumlah repost
+//     let reposts = '0';
+//     try {
+//       const repostsEl = await tweet.$(`.${keyElement("aboutPage:reposts")}`);
+//       if (repostsEl) reposts = (await repostsEl.getText()).trim() || '0';
+//     } catch {
+//       console.log(reposts);
+//     }
 
-    // Ambil jumlah like
-    let likes = '0';
-    try {
-      const likesEl = await tweet.$(`.${keyElement("aboutPage:likes")}`);
-      if (likesEl) likes = (await likesEl.getText()).trim() || '0';
-    } catch {
-      console.log(likes);
-    }
+//     // Ambil jumlah like
+//     let likes = '0';
+//     try {
+//       const likesEl = await tweet.$(`.${keyElement("aboutPage:likes")}`);
+//       if (likesEl) likes = (await likesEl.getText()).trim() || '0';
+//     } catch {
+//       console.log(likes);
+//     }
 
-    // Ambil reply
-    // let replyingTo = 'Empty';
-    let replyingTo: string = "Empty"
-    try {
-      const replyingToEl = await tweet.$(`.${keyElement("aboutPage:replyingTo")}`);
-      if (replyingToEl) replyingTo = (await replyingToEl.getText()).trim() || 'Empty';
-    } catch {
-      console.log(replyingTo);
-    }
-    const usernameReplyingTo = extractUsername(replyingTo)
-    let setTargetUsername = ""
+//     // Ambil reply
+//     // let replyingTo = 'Empty';
+//     let replyingTo: string = "Empty"
+//     try {
+//       const replyingToEl = await tweet.$(`.${keyElement("aboutPage:replyingTo")}`);
+//       if (replyingToEl) replyingTo = (await replyingToEl.getText()).trim() || 'Empty';
+//     } catch {
+//       console.log(replyingTo);
+//     }
+//     const usernameReplyingTo = extractUsername(replyingTo)
+//     let setTargetUsername = ""
 
-    if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
-      interactionType = "Mention and Reply"
-      setTargetUsername = usernameMention.join(" ") + usernameReplyingTo.join(" ")
-    } else if (usernameReplyingTo.length > 0) {
-      interactionType = 'Reply'
-      setTargetUsername = usernameReplyingTo.join(" ")
-    } else if (usernameMention.length > 0) {
-      interactionType = "Mention"
-      setTargetUsername = usernameMention.join(" ")
-    }
-    else {
-      interactionType = 'Regular post'
-    }
+//     if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
+//       interactionType = "Mention and Reply"
+//       setTargetUsername = usernameMention.join(" ") + usernameReplyingTo.join(" ")
+//     } else if (usernameReplyingTo.length > 0) {
+//       interactionType = 'Reply'
+//       setTargetUsername = usernameReplyingTo.join(" ")
+//     } else if (usernameMention.length > 0) {
+//       interactionType = "Mention"
+//       setTargetUsername = usernameMention.join(" ")
+//     }
+//     else {
+//       interactionType = 'Regular post'
+//     }
 
-    // Susun data tweet
-    const objTweets = [
-      username,
-      tanggal.trim(), 
-      posting,
-      replies,
-      reposts,
-      likes,
-      interactionType,
-      setTargetUsername
-    ];
-    return objTweets;
-  }
+//     // Susun data tweet
+//     const objTweets = [
+//       username,
+//       tanggal.trim(), 
+//       posting,
+//       replies,
+//       reposts,
+//       likes,
+//       interactionType,
+//       setTargetUsername
+//     ];
+//     return objTweets;
+//   }
 
-  return [];
-}
+//   return [];
+// }
 
 /**
  * Mengambil dan menyimpan data tweet sebanyak `count` tweet unik ke file CSV.
@@ -250,7 +311,6 @@ async function collectUniqueTweetsToCSV(count: number) {
     log("INFO", "✅ Semua tweet unik telah diproses dan disimpan.")
     await browser.pause(1000);
   } catch (err: any) {
-    // console.error("❌ Terjadi kesalahan:", err.message);
     log("ERROR", `❌ Terjadi kesalahan:, ${err.message}`)
     throw err;
   }
