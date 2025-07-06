@@ -276,7 +276,8 @@ async function saveToCSV(row: string, baseName: string) {
   try {
     // kalau file belum ada, tulis header baru
     if (!existsSync(filePath)) {
-      const header = 'Username,Date,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
+      // const header = 'Username,Date,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
+      const header = 'Tweet ID,href,Username,Date,Text Tweets,Replies,Reposts,Likes,Is Regular Post,Is Mention,Is Quote,Is Reply,Target Username\n';
       await fs.writeFile(filePath, header, 'utf-8');
     }
 
@@ -290,7 +291,7 @@ async function saveToCSV(row: string, baseName: string) {
 }
 
 
-async function saveToJSON(obj: Record<string, string>, baseName: string) {
+async function saveToJSON(obj: any, baseName: string) {
   const folderPath = path.join('reporter');
   if (!existsSync(folderPath)) {
     mkdirSync(folderPath, { recursive: true });

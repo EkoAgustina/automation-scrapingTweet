@@ -63,7 +63,7 @@ const __dirname = path.dirname(__filename);
 type Tweet = {
   username: string,
   tanggal: string,
-  textTweet: string,
+  text_tweet: string,
   replies: string,
   reposts: string,
   likes: string,
@@ -91,7 +91,7 @@ jsonFiles.forEach(file => {
   }
 
   data.forEach((item, index) => {
-    const key = `${item.username.trim()}|${item.textTweet.trim()}`;
+    const key = `${item.username.trim()}|${item.text_tweet.trim()}`;
     const entry = { file, index };
 
     if (!seen.has(key)) {
@@ -116,5 +116,5 @@ seen.forEach((entries, key) => {
 });
 
 if (!found) {
-  console.log('✅ Tidak ditemukan duplikat berdasarkan Username + textTweet di semua file.');
+  console.log('✅ Tidak ditemukan duplikat berdasarkan Username + text_tweet di semua file.');
 }

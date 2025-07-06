@@ -38,15 +38,16 @@ function checkIfTweetLimitReached(maxLength: number): boolean {
 }
 
 
-function checkDuplicateTweets(username: string, posting: string) {
+function checkDuplicateTweets(username: string, posting: string, tweetId: string) {
   // Jika ini run pertama dan file belum ada, skip
   try {
     if (!hasRunCollectOnce) {
       const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
       const data = JSON.parse(rawData);
-      // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek
+      // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek tweetId
       const found = data.some((item: any) => {
-        return item.textTweet === posting && item.username === username;
+        // return item.text_tweet === posting && item.username === username;
+        return item.tweet_id === tweetId
       });
       if (found) {
         if (extractTweetCallCount !== 0){
@@ -65,7 +66,8 @@ function checkDuplicateTweets(username: string, posting: string) {
     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
     const data = JSON.parse(rawData);
     const found = data.some((item: any) => {
-      return item.textTweet === posting && item.username === username;
+      // return item.text_tweet === posting && item.username === username;
+      return item.tweet_id === tweetId
     });
     if (found) {
       log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists, ${username}: ${posting}`);
@@ -146,34 +148,58 @@ function getInteractionInfo(posting: string, replyingTo: string, tweetQuetes: st
 
   if (usernameMention.length > 0 && usernameReplyingTo.length > 0) {
     return {
-      interactionType: "Mention and Reply",
+      // interactionType: "Mention and Reply",
+      isRegularPost: false,
+      isMention: true,
+      isQuote: false,
+      isReply: true,
       setTargetUsername: usernameMention.join(" ") + " " + usernameReplyingTo.join(" ")
     };
   } else if (usernameMention.length > 0 && usernameTweetQuotes.length > 0) {
     return {
-      interactionType: "Mention and Quotes",
+      // interactionType: "Mention and Quotes",
+      isRegularPost: false,
+      isMention: true,
+      isQuote: true,
+      isReply: false,
       setTargetUsername: usernameMention.join(" ") + " " + usernameTweetQuotes.join(" ")
     };
   } else if (usernameTweetQuotes.length > 0) {
     return {
-      interactionType: "Quotes",
+      // interactionType: "Quotes",
+      isRegularPost: false,
+      isMention: false,
+      isQuote: true,
+      isReply: false,
       setTargetUsername: usernameTweetQuotes.join(" ")
     };
   } 
   else if (usernameReplyingTo.length > 0) {
     return {
-      interactionType: "Reply",
+      // interactionType: "Reply",
+      isRegularPost: false,
+      isMention: false,
+      isQuote: false,
+      isReply: true,
       setTargetUsername: usernameReplyingTo.join(" ")
     };
   } 
   else if (usernameMention.length > 0) {
     return {
-      interactionType: "Mention",
+      // interactionType: "Mention",
+      isRegularPost: false,
+      isMention: true,
+      isQuote: false,
+      isReply: false,
       setTargetUsername: usernameMention.join(" ")
     };
   } else {
     return {
-      interactionType: "Regular post",
+      // interactionType: "Regular post",
+      isRegularPost: true,
+      isMention: false,
+      isQuote: false,
+      isReply: false,
       setTargetUsername: "NA"
     };
   }
@@ -186,19 +212,27 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
-
     const { username, textTweet, date } = await getTweetTextData(tweet);
     if (!username || !textTweet) return [];
+    const tweetLink = await tweet.$('a[href*="/status/"]');
+    const href = await tweetLink.getAttribute('href'); // e.g., "/ibranimovic29/status/1769255174513518627"
+    const tweetId = href.split('/status/')[1]; 
 
-    if (checkDuplicateTweets(username, textTweet) === 'Tweet already exists') return [];
+    if (checkDuplicateTweets(username,textTweet, tweetId) === 'Tweet already exists') return [];
 
     // const replyingToEl = await tweet.$(`.${keyElement("tweets:replyingTo")}`);
     // const replyingTo = replyingToEl ? (await replyingToEl.getText()).trim() : 'Empty';
 
     const { replies, reposts, likes, replyingTo, tweetQuotes } = await getTweetStats(tweet);
-    const { interactionType, setTargetUsername } = getInteractionInfo(textTweet, replyingTo, tweetQuotes);
+    const { isRegularPost, isMention, isQuote, isReply, setTargetUsername } = getInteractionInfo(textTweet, replyingTo, tweetQuotes);
+    // console.log(`-------- cekk tweetLink --------`)
+    // console.log(href)
+    // console.log(tweet_id)
+    // console.log(`-------- cekk tweetLink --------`)
 
-    const objTweets = [username, date, textTweet, replies, reposts, likes, interactionType, setTargetUsername];
+    const objTweets = [
+      tweetId, href , username, date, textTweet, replies, reposts, likes, isRegularPost.toString(), isMention.toString(), isQuote.toString(), isReply.toString(), setTargetUsername
+    ];
     return objTweets;
   }
 
@@ -215,10 +249,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 async function runTweetScrapingLoops(tweetLimit: number) {
   // const request = 100;
   // const a: number = 20;
-  const requestTweet: number = tweetLimit + (tweetLimit * 0.6);
-  console.log('---- cek pembagi -----')
-  console.log(requestTweet)
-  console.log('---- cek pembagi -----')
+  const requestTweet: number = tweetLimit + (tweetLimit * 0.7);
 
   const indexArticle = 11;
   const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
@@ -254,15 +285,19 @@ async function runTweetScrapingLoops(tweetLimit: number) {
       const csvRow = tweetData.map(v => `"${v.replace(/"/g, '""')}"`).join(",");
       await saveToCSV(csvRow, globalVariables.scrapingReportsName);
       const tweetObject = {
-        username: tweetData[0],
-        date: tweetData[1],
-        textTweet: tweetData[2],
-        replies: tweetData[3],
-        reposts: tweetData[4],
-        likes: tweetData[5],
-        interactionType: tweetData[6],
-        targetUsername: tweetData[7]
-
+        tweet_id: tweetData[0],
+        href: tweetData[1],
+        username: tweetData[2],
+        date: tweetData[3],
+        text_tweet: tweetData[4],
+        replies: +tweetData[5],
+        reposts: +tweetData[6],
+        likes: +tweetData[7],
+        is_regular_post: tweetData[8] === "true",
+        is_mention: tweetData[9] === "true",
+        is_quote: tweetData[10] === "true",
+        is_reply: tweetData[11] === "true",
+        target_username: tweetData[12],
         };
     await saveToJSON(tweetObject, globalVariables.scrapingReportsName);
       log("INFO", `The extractTweetDataAtIndex function has been executed ${extractTweetCallCount} times.`)
