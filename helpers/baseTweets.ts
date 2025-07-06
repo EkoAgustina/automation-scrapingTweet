@@ -1,5 +1,5 @@
 import { keyElement } from "../mappings/mapper.ts";
-import { swipeUpElDisplayed, swipeUpwithTime } from './baseSwipe.ts';
+import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from './baseSwipe.ts';
 import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
@@ -72,7 +72,10 @@ async function getTweetTextData(tweet: WebdriverIO.Element) {
   const postingEl = await tweet.$(`.${keyElement("aboutPage:posting")}`);
   const timeEl = await tweet.$(`.${keyElement("aboutPage:postingTime")}`);
 
+  const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("aboutPage:username")}`)
+  if (swipeCheckUsername !== '200') throw new Error("Tweet tidak ditemukan");
   const username = usernameEl ? (await usernameEl.getText()).trim() : '';
+
   const posting = postingEl ? (await postingEl.getText()).trim() : '';
   const tanggal = timeEl ? (await timeEl.getText()).trim() : '';
 
@@ -119,7 +122,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   const tweetArticles = await $$(`${keyElement("aboutPage:tweetArticles")}[${index}]`);
   extractTweetCallCount++;
   globalVariables.tweetCountCheck ++
-  await browser.pause(3000);
+  await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
 
@@ -197,21 +200,21 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 
 //     // Ambil jumlah reply
 //     let replies = '0';
-//     try {
-//       const repliesEl = await tweet.$(`.${keyElement("aboutPage:replies")}`);
-//       if (repliesEl) replies = (await repliesEl.getText()).trim() || '0';
-//     } catch {
-//       console.log(replies);
-//     }
+    // try {
+    //   const repliesEl = await tweet.$(`.${keyElement("aboutPage:replies")}`);
+    //   if (repliesEl) replies = (await repliesEl.getText()).trim() || '0';
+    // } catch {
+    //   console.log(replies);
+    // }
 
 //     // Ambil jumlah repost
-//     let reposts = '0';
-//     try {
-//       const repostsEl = await tweet.$(`.${keyElement("aboutPage:reposts")}`);
-//       if (repostsEl) reposts = (await repostsEl.getText()).trim() || '0';
-//     } catch {
-//       console.log(reposts);
-//     }
+    // let reposts = '0';
+    // try {
+    //   const repostsEl = await tweet.$(`.${keyElement("aboutPage:reposts")}`);
+    //   if (repostsEl) reposts = (await repostsEl.getText()).trim() || '0';
+    // } catch {
+    //   console.log(reposts);
+    // }
 
 //     // Ambil jumlah like
 //     let likes = '0';

@@ -41,6 +41,39 @@ async function swipeUpElDisplayed (locator:string) : Promise<string> {
     }
 }
 
+async function swipeUpElDisplayedCustom (tweet: WebdriverIO.Element, locator:string) : Promise<string> {
+    try {
+        const windowSize = await browser.getWindowSize();
+        const coordinateX = Math.round(windowSize.width * 0.2) 
+        const coordinateY = Math.round(windowSize.height * 1.70)
+        // const coπordinateX = Math.round (windowSize.width * 0.2)
+        // const coordinateY = Math.round(windowSize.height * 1.70)
+        let attempts = 0;
+        const maxAttempts = 5;
+
+        while (!await (await tweet.$(locator)).isDisplayed() ) {
+            await browser.scroll(coordinateX,coordinateY)
+            log("INFO", `Swipe attempts: ${attempts}`);
+            await browser.pause(1000);
+            attempts++
+
+            if (attempts >= maxAttempts) {
+                // throw new Error(`${keyElement(locator)} not found, swipe up exceeded`)
+                // console.error(`${keyElement(locator)} not found, swipe up exceeded`)
+                console.error(`${locator} not found, swipe up exceeded`)
+                return '404'
+            }
+        }
+
+        // await scrollIntoView(locator)
+        log("INFO", `${locator} found after ${attempts} swipes`);
+        return '200'
+    } catch (err:any) {
+        log("ERROR", err.message)
+        throw err
+    }
+}
+
 
 async function swipeUpIntoView (locator:string) : Promise<string> {
     try {
@@ -69,4 +102,4 @@ async function swipeUpwithTime (duration:number) {
     }
 }
 
-export {swipeUpElDisplayed, swipeUpwithTime, swipeUpIntoView };
+export {swipeUpElDisplayed, swipeUpElDisplayedCustom, swipeUpwithTime, swipeUpIntoView };
