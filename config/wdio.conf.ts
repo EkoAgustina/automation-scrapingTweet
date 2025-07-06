@@ -2,6 +2,7 @@ import type { Options } from '@wdio/types'
 import { env } from 'process';
 import { hookBeforeScenario, hooksAfterScenario } from "../hooks/driverHooks.ts"
 import { specConfig, allureConfig } from "./report.conf.ts"
+import { log } from '../helpers/baseScreen.ts';
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -239,8 +240,16 @@ export const config: Options.Testrunner = {
      * @param {string}                   uri      path to feature file
      * @param {GherkinDocument.IFeature} feature  Cucumber feature object
      */
-    // beforeFeature: function (uri, feature) {
-    // },
+    beforeFeature: function () {
+        const loopCountStr = env.TWEETS_COUNTS_REQUEST;
+        const loopCount = parseInt(loopCountStr || '', 10);
+
+        if (isNaN(loopCount)) {
+        throw new Error("TWEETS_COUNTS_REQUEST must be a valid number.");
+        }
+
+        log("INFO", `TWEETS COUNTS REQUEST ${loopCount}`)
+    },
     /**
      *
      * Runs before a Cucumber Scenario.

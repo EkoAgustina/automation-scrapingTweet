@@ -201,16 +201,29 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
  * Mengambil dan menyimpan data tweet sebanyak `count` tweet unik ke file CSV.
  * Tweet akan di-scroll satu per satu berdasarkan index DOM.
  * 
- * @param count Jumlah tweet yang ingin diambil.
+ * @param tweetLimit Jumlah tweet yang ingin diambil.
  */
-async function collectUniqueTweetsToCSV(count: number, tweetLimit = 5) {
+async function runTweetScrapingLoops(tweetLimit: number) {
+  // const request = 100;
+  // const a: number = 20;
+  const requestTweet: number = tweetLimit + (tweetLimit * 0.6);
+  console.log('---- cek pembagi -----')
+  console.log(requestTweet)
+  console.log('---- cek pembagi -----')
+
+  const indexArticle = 11;
+  const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
+  let currentRequestTweet = 0;
+
   try {
-    if (checkIfTweetLimitReached(tweetLimit)) {
+    for (let divisorIndex = 0; divisorIndex < indexDivisorTotal; divisorIndex++) {
+      if (checkIfTweetLimitReached(tweetLimit)) {
       log("INFO", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
       return;
     }
 
-    for (let i = 1; i <= count; i++) {
+    for (let i = 1; i <= indexArticle; i++) {
+      if (currentRequestTweet >= requestTweet) break;
       if (checkIfTweetLimitReached(tweetLimit)) {
         log("INFO", `✅ Tweet limit of ${tweetLimit} reached during iteration ${i}. Stopping loop.`);
         break;
@@ -218,7 +231,7 @@ async function collectUniqueTweetsToCSV(count: number, tweetLimit = 5) {
       const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
       if (swipeCheck !== '200') throw new Error("Tweet not found");
       if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
-      if (i === count) await swipeUpwithTime(1)
+      if (i === indexDivisorTotal) await swipeUpwithTime(1)
 
       // Ambil data tweet
       const tweetData = await extractTweetDataAtIndex(i);
@@ -246,26 +259,11 @@ async function collectUniqueTweetsToCSV(count: number, tweetLimit = 5) {
       log("INFO", `The extractTweetDataAtIndex function has been executed ${extractTweetCallCount} times.`)
     }
     hasRunCollectOnce = true;
+    currentRequestTweet++;
     await browser.pause(1000);
-  } catch (err: any) {
-    log("ERROR", `An error occurred:, ${err.message}`)
-    throw err;
-  }
-}
-
-/**
- * Fungsi untuk menjalankan proses scraping tweet sebanyak `loopCount` kali.
- * Setiap loop akan memproses 10 tweet (default behavior).
- * 
- * @param loopCount Jumlah pengulangan scraping batch (1 batch = 10 tweet).
- */
-async function runTweetScrapingLoops(loopCount: number) {
-  try {
-    for (let i = 1; i <= loopCount; i++) {
-      await collectUniqueTweetsToCSV(11);
     }
   } catch (err: any) {
-    log("ERROR", `An error occurred: ${err.message}`)
+    log("ERROR", `An error occurred:, ${err.message}`)
     throw err;
   }
 }

@@ -5,7 +5,7 @@ import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../helpers
 import { swipeUpwithTime, swipeUpElDisplayed } from "../../helpers/baseSwipe.ts";
 import { actionFill } from '../../helpers/baseFill.ts';
 import { runTweetScrapingLoops } from '../../helpers/baseTweets.ts';
-// import { parseTestData } from '../../mappings/mapper.ts';
+import { env } from 'process';
 
 /**
  * Step definition for the Cucumber step: Given User open "<page>".
@@ -41,7 +41,14 @@ When(/^User click "(.*)"$/, async (locator) => {
 
 When(/^Users do scraping twitter data$/,async () => {
     try {
-        await runTweetScrapingLoops(2)
+        const loopCountStr = env.TWEETS_COUNTS_REQUEST;
+        const loopCount = parseInt(loopCountStr || '', 10);
+
+        if (isNaN(loopCount)) {
+        throw new Error("TWEETS_COUNTS_REQUEST must be a valid number.");
+        }
+
+        await runTweetScrapingLoops(loopCount)
     } catch (err: any) {
         log("ERROR", err.message)
         throw err
