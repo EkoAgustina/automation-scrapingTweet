@@ -21,6 +21,7 @@ if (globalVariables.os === 'linux') {
                             '--disable-extensions',
                             '--disable-dev-shm-usage',
                             '--disable-cache', 
+                            '--remote-debugging-pipe',
                             `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
             },
             acceptInsecureCerts: true,
@@ -84,6 +85,7 @@ if (globalVariables.os === 'linux') {
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
                             '--disable-cache', 
+                            '--remote-debugging-pipe',
                             `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
                     },
                     acceptInsecureCerts: true,
