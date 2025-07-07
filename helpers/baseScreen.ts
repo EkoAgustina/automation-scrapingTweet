@@ -68,9 +68,9 @@ async function setBrowserSize(): Promise<void> {
   try {
     const browserName = env.BROWSER_NAME?.toLowerCase();
 
-    if (globalVariables.os === 'linux' || browserName === 'headless' || browserName === 'docker') {
+    if (globalVariables.os === 'linux' || browserName === 'docker') {
       await browser.setWindowSize(1470, 854);
-    } else if (browserName === 'chrome') {
+    } else if (browserName === 'chrome' || browserName === 'headless') {
       await browser.maximizeWindow();
     } else {
       throw new Error(`browserName "${browserName}" not recognized!`);
