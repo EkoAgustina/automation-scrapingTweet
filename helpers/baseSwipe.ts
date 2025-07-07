@@ -49,7 +49,7 @@ async function swipeUpElDisplayedCustom (tweet: WebdriverIO.Element, locator:str
         // const coπordinateX = Math.round (windowSize.width * 0.2)
         // const coordinateY = Math.round(windowSize.height * 1.70)
         let attempts = 0;
-        const maxAttempts = 5;
+        const maxAttempts = 6;
 
         while (!await elWaitForExistTweet(tweet, locator) ) {
             await browser.scroll(coordinateX,coordinateY)
