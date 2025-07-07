@@ -272,7 +272,10 @@ async function runTweetScrapingLoops(tweetLimit: number) {
       if (swipeCheck !== '200') throw new Error("Tweet not found");
       if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
       // if (i === indexDivisorTotal) await swipeUpwithTime(1)
-      if (i === indexDivisorTotal) await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
+      if (i === indexArticle) {
+        await browser.pause(2000);
+        await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
+      }
 
       // Ambil data tweet
       const tweetData = await extractTweetDataAtIndex(i);
