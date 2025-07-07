@@ -1,5 +1,5 @@
 # CUCUMBER TAGS
-CUCUMBER_TAGS='@scEighteen'
+CUCUMBER_TAGS='@scTwentyFive or @scTwentyFour'
 TWEETS_COUNT=20
 
 # Host name
