@@ -1,5 +1,5 @@
 import { keyElement } from "../mappings/mapper.ts";
-import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from './baseSwipe.ts';
+import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom, swipeUpIntoView } from './baseSwipe.ts';
 import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
@@ -38,7 +38,7 @@ function checkIfTweetLimitReached(maxLength: number): boolean {
 }
 
 
-function checkDuplicateTweets(username: string, posting: string, tweetId: string) {
+function checkDuplicateTweets(tweetId: string) {
   // Jika ini run pertama dan file belum ada, skip
   try {
     if (!hasRunCollectOnce) {
@@ -51,8 +51,8 @@ function checkDuplicateTweets(username: string, posting: string, tweetId: string
       });
       if (found) {
         if (extractTweetCallCount !== 0){
-          log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${username}: ${posting}`);
-          globalVariables.similarTweets.add(`⚠️ [${extractTweetCallCount}] Tweet already exists, ${username}: ${posting}`)
+          log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${tweetId}`);
+          globalVariables.similarTweets.add(`⚠️ [${extractTweetCallCount}] Tweet already exists: ${tweetId}`)
           return 'Tweet already exists';
         }
       }
@@ -70,8 +70,8 @@ function checkDuplicateTweets(username: string, posting: string, tweetId: string
       return item.tweet_id === tweetId
     });
     if (found) {
-      log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists, ${username}: ${posting}`);
-      globalVariables.similarTweets.add(`⚠️ [${extractTweetCallCount}] Tweet already exists, ${username}: ${posting}`)
+      log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists: ${tweetId}`);
+      globalVariables.similarTweets.add(`⚠️ [${extractTweetCallCount}] Tweet already exists: ${tweetId}`)
       return 'Tweet already exists';
     }
     return 'Tweet not found';
@@ -212,13 +212,13 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
-    const { username, textTweet, date } = await getTweetTextData(tweet);
-    if (!username || !textTweet) return [];
     const tweetLink = await tweet.$('a[href*="/status/"]');
     const href = await tweetLink.getAttribute('href'); // e.g., "/ibranimovic29/status/1769255174513518627"
     const tweetId = href.split('/status/')[1]; 
+    if (checkDuplicateTweets(tweetId) === 'Tweet already exists') return [];
 
-    if (checkDuplicateTweets(username,textTweet, tweetId) === 'Tweet already exists') return [];
+    const { username, textTweet, date } = await getTweetTextData(tweet);
+    if (!username || !textTweet) return [];
 
     // const replyingToEl = await tweet.$(`.${keyElement("tweets:replyingTo")}`);
     // const replyingTo = replyingToEl ? (await replyingToEl.getText()).trim() : 'Empty';
@@ -270,8 +270,9 @@ async function runTweetScrapingLoops(tweetLimit: number) {
       }
       const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
       if (swipeCheck !== '200') throw new Error("Tweet not found");
-      if (i !== 0 && i % 3 === 0) await swipeUpwithTime(1)
-      if (i === indexDivisorTotal) await swipeUpwithTime(1)
+      if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
+      // if (i === indexDivisorTotal) await swipeUpwithTime(1)
+      if (i === indexDivisorTotal) await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
 
       // Ambil data tweet
       const tweetData = await extractTweetDataAtIndex(i);
