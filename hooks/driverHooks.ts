@@ -43,12 +43,6 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
     return navigator.userAgent;
   });
   log("INFO", userAgent)
-  if (globalVariables.similarTweets.size === 0) {
-    console.log("No similar tweets found.");
-  } else {
-    console.log("Similar Tweets:");
-    globalVariables.similarTweets.forEach((tweet) => console.log(`- ${tweet}`));
-  }
 
   console.log(`Count of posts checked: ${globalVariables.tweetCountCheck}`)
 

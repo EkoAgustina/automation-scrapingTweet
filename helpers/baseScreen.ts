@@ -4,6 +4,8 @@ import logger from '@wdio/logger';
 import * as fs from 'node:fs/promises';
 import { existsSync, readdirSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
+import globalVariables from "../resources/globalVariable.ts";
+import { env } from 'node:process';
 
 
 
@@ -22,7 +24,7 @@ const log = (level:string, message:string) => {
       logger('INFO').info(message)
       break;
     case 'ERROR':
-      logger('ERROR').info(message)
+      logger('ERROR').error(message)
       break;
     default:
       throw new Error('Unknown conditions')
@@ -62,14 +64,23 @@ try {
 /**
  * For set browser size.
  */
-async function setBrowserSize() {
+async function setBrowserSize(): Promise<void> {
   try {
-    await browser.maximizeWindow();
+    const browserName = env.BROWSER_NAME?.toLowerCase();
+
+    if (globalVariables.os === 'linux' || browserName === 'headless' || browserName === 'docker') {
+      await browser.setWindowSize(1470, 854);
+    } else if (browserName === 'chrome') {
+      await browser.maximizeWindow();
+    } else {
+      throw new Error(`browserName "${browserName}" not recognized!`);
+    }
   } catch (err: any) {
-    log("ERROR", err.message)
-    throw err
+    log("ERROR", err.message);
+    throw err;
   }
 }
+
 
 /**
  * Opens the browser and navigates to the specified URL.
@@ -87,7 +98,6 @@ async function baseOpenBrowser(url: string): Promise<void> {
     await browser.pause(1000);
     await browser.refresh()
     await browser.url(url);
-
     log('INFO', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
     
     sleep(3)
@@ -319,7 +329,6 @@ async function saveToJSON(obj: any, baseName: string) {
     throw err;
   }
 }
-
 
 
 

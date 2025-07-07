@@ -21,7 +21,6 @@ export default class globalVariables {
    * Similar tweets collection.
    * @type {any}
    */
-  static similarTweets: Set<string> = new Set<string>();
 
   static tweetCountCheck = 0
 
