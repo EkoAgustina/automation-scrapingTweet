@@ -249,7 +249,7 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 async function runTweetScrapingLoops(tweetLimit: number) {
   // const request = 100;
   // const a: number = 20;
-  const requestTweet: number = tweetLimit + (tweetLimit * 0.7);
+  const requestTweet: number = tweetLimit + (tweetLimit * 0.8);
 
   const indexArticle = 11;
   const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
@@ -270,7 +270,7 @@ async function runTweetScrapingLoops(tweetLimit: number) {
       }
       const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
       if (swipeCheck !== '200') throw new Error("Tweet not found");
-      if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
+      if (i !== 0 && i % 3 === 0) await swipeUpwithTime(1)
       if (i === indexDivisorTotal) await swipeUpwithTime(1)
 
       // Ambil data tweet
