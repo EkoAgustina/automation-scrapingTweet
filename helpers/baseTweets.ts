@@ -113,6 +113,15 @@ function convertDate(dateStr: string) {
 //     .replace(/\s+([?.!])/g, '$1');    // Hapus spasi sebelum tanda baca
 // };
 
+async function getTweetId(tweet: WebdriverIO.Element) {
+  const swipeTweetLink = await swipeUpElDisplayedCustom(tweet, `a[href*="/status/`)
+  if (swipeTweetLink !== '200') throw new Error("Tweet tidak ditemukan");
+  const tweetLink = await tweet.$('a[href*="/status/"]');
+  const href = await tweetLink.getAttribute('href');
+  const tweetId = href.split('/status/')[1];
+  
+  return {href, tweetId}
+}
 
 async function getTweetTextData(tweet: WebdriverIO.Element) {
 
@@ -212,9 +221,10 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
-    const tweetLink = await tweet.$('a[href*="/status/"]');
-    const href = await tweetLink.getAttribute('href'); // e.g., "/ibranimovic29/status/1769255174513518627"
-    const tweetId = href.split('/status/')[1]; 
+    // const tweetLink = await tweet.$('a[href*="/status/"]');
+    // const href = await tweetLink.getAttribute('href');
+    // const tweetId = href.split('/status/')[1]; 
+    const {href, tweetId } = await getTweetId(tweet)
     if (checkDuplicateTweets(tweetId) === 'Tweet already exists') return [];
 
     const { username, textTweet, date } = await getTweetTextData(tweet);
