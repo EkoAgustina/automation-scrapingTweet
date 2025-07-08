@@ -299,6 +299,8 @@ async function runTweetScrapingLoops(tweetLimit: number) {
         // Ambil data tweet
         const tweetData = await extractTweetDataAtIndex(i);
 
+        log("INFO", `Scrapped has been done ${extractTweetCallCount} times.`)
+
         await browser.pause(2000);
 
         // Jika kosong atau duplikat, lanjut ke berikutnya
@@ -323,7 +325,6 @@ async function runTweetScrapingLoops(tweetLimit: number) {
           target_username: tweetData[12],
         };
         await saveToJSON(tweetObject, globalVariables.scrapingReportsName);
-        log("INFO", `The extractTweetDataAtIndex function has been executed ${extractTweetCallCount} times.`)
         currentRequestTweet++;
       }
       hasRunCollectOnce = true;
