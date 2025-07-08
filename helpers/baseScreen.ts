@@ -92,8 +92,8 @@ async function baseOpenBrowser(url: string): Promise<void> {
     await browser.url("https://x.com");
     await setBrowserSize()
     await browser.setCookies([
-        {name: 'auth_token', value: '4c9492cd77ca663cb211b09e650d3702397fa874'},
-        {name: 'ct0', value: '1929ee776904b162d7736c7d79ee39c7dd42cf31edb73eb102a5eddc64b43462d23c2508c4001b87a1dd91449bbde4a609611d30d16bc857200bcbbd1ab2bf6fb9051a7aaf7e3fc41ec5eb203328cae2'}
+        {name: 'auth_token', value: 'a8d614272f05bfda860564c2748923227fa9a929'},
+        {name: 'ct0', value: '0080511fde84af4e8953e9d554e793470179484033c4c0b78f768697392c52b0b3de6ee2ba2ec4ea8b3f38c1404005b2ba49919e42778b7d07e8e8cfb8f69b12be4a5bd4dfc9ba21b5098092c24a26dc'}
     ])
     await browser.pause(1000);
     await browser.refresh()

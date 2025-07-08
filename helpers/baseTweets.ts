@@ -46,7 +46,7 @@ async function scrollByLastIndex() {
     if (!Array.isArray(tweetCache)) {
       log("ERROR", "JSON file does not contain arrays")
       // return '❌ File JSON tidak berisi array.';
-      return false
+      return false 
     }
 
     if (tweetCache.length >= 20) {
