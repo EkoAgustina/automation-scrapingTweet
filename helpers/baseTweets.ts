@@ -55,6 +55,7 @@ async function scrollByLastIndex() {
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
       log("INFO", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       await swipeUpwithTime(Math.ceil(lastIndex))
+      await browser.pause(3000);
       return true
     } else {
       log("WARN", `Not running swipe last index`)
@@ -92,7 +93,6 @@ async function scrollByLastIndex() {
 //   }
 // }
 function checkIfTweetLimitReached(maxLength: number): boolean {
-  loadTweetCache()
   const currentCount = tweetCache.length;
   globalVariables.tweetsCount = currentCount;
 
@@ -348,6 +348,7 @@ async function runTweetScrapingLoops(tweetLimit: number) {
   let currentRequestTweet = 0;
 
   try {
+    loadTweetCache()
     for (let divisorIndex = 0; divisorIndex < indexDivisorTotal; divisorIndex++) {
       if (checkIfTweetLimitReached(tweetLimit)) {
         log("INFO", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
