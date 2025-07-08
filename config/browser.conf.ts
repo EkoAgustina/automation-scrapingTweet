@@ -6,55 +6,27 @@ import { env } from 'process';
 if (globalVariables.os === 'linux') {
     config.hostname = env.HOST_NAME!.split(':')[0];
     config.port = parseInt(env.HOST_NAME!.split(':')[1]);
-    // config.capabilities = [
-    //     {
-    //         maxInstances: 6,
-    //         browserName: 'chrome',
-    //         'goog:chromeOptions': {
-    //                     args: ['--headless', 
-    //                         '--no-sandbox',
-    //                         '--incognito', 
-    //                         '--disable-blink-features=AutomationControlled',
-    //                         '--disable-gpu',
-    //                         '--disable-gpu-compositing', 
-    //                         '--disable-dev-shm-usage',
-    //                         '--disable-extensions',
-    //                         '--disable-cache', 
-    //                         '--remote-debugging-pipe',
-    //                         `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
-    //         },
-    //         acceptInsecureCerts: true,
-    //         // webSocketUrl: true
-    //     }
-    // ];
     config.capabilities = [
-    {
-        maxInstances: 6,
-        browserName: 'firefox',
-        'moz:firefoxOptions': {
-            args: [
-                '-headless', // mode headless untuk Firefox
-                '-private', // mode private/incognito
-                // '--width=1920',
-                // '--height=1080',
-            ],
-            prefs: {
-                // Matikan caching
-                'browser.cache.disk.enable': false,
-                'browser.cache.memory.enable': false,
-                'browser.cache.offline.enable': false,
-                'network.http.use-cache': false,
-                
-                // Cegah deteksi automation
-                'dom.webdriver.enabled': false,
-                'useAutomationExtension': false,
-                'media.peerconnection.enabled': false,
-                'general.useragent.override': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Gecko/20100101 Firefox/115.0'
-            }
-        },
-        acceptInsecureCerts: true,
-    }
-];
+        {
+            maxInstances: 6,
+            browserName: 'chrome',
+            'goog:chromeOptions': {
+                        args: ['--headless', 
+                            '--no-sandbox',
+                            '--incognito', 
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-gpu',
+                            '--disable-gpu-compositing', 
+                            '--disable-dev-shm-usage',
+                            '--disable-extensions',
+                            '--disable-cache', 
+                            '--remote-debugging-pipe',
+                            `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
+            },
+            acceptInsecureCerts: true,
+            // webSocketUrl: true
+        }
+    ];
 
     config.services = [];
 } else {
@@ -98,56 +70,28 @@ if (globalVariables.os === 'linux') {
         case 'docker':
             config.hostname = env.HOST_NAME!.split(':')[0];
             config.port = parseInt(env.HOST_NAME!.split(':')[1]);
-            // config.path = "/wd/hub"
-            // config.capabilities = [
-            //     {
-            //         maxInstances: 6,
-            //         browserName: 'chrome',
-            //         'goog:chromeOptions': {
-            //             args: ['--headless', 
-            //                 '--no-sandbox', 
-            //                 '--incognito', 
-            //                 '--disable-blink-features=AutomationControlled',
-            //                 '--disable-gpu',
-            //                 '--disable-gpu-compositing', 
-            //                 '--disable-dev-shm-usage',
-            //                 '--disable-extensions',
-            //                 '--disable-cache', 
-            //                 '--remote-debugging-pipe',
-            //                 `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
-            //         },
-            //         acceptInsecureCerts: true,
-            //         // webSocketUrl: true
-            //     }
-            // ];
+            config.path = "/wd/hub"
             config.capabilities = [
-    {
-        maxInstances: 6,
-        browserName: 'firefox',
-        'moz:firefoxOptions': {
-            args: [
-                '-headless', // mode headless untuk Firefox
-                '-private', // mode private/incognito
-                // '--width=1920',
-                // '--height=1080',
-            ],
-            prefs: {
-                // Matikan caching
-                'browser.cache.disk.enable': false,
-                'browser.cache.memory.enable': false,
-                'browser.cache.offline.enable': false,
-                'network.http.use-cache': false,
-                
-                // Cegah deteksi automation
-                'dom.webdriver.enabled': false,
-                'useAutomationExtension': false,
-                'media.peerconnection.enabled': false,
-                'general.useragent.override': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) Gecko/20100101 Firefox/115.0'
-            }
-        },
-        acceptInsecureCerts: true,
-    }
-];
+                {
+                    maxInstances: 6,
+                    browserName: 'chrome',
+                    'goog:chromeOptions': {
+                        args: ['--headless', 
+                            '--no-sandbox', 
+                            '--incognito', 
+                            '--disable-blink-features=AutomationControlled',
+                            '--disable-gpu',
+                            '--disable-gpu-compositing', 
+                            '--disable-dev-shm-usage',
+                            '--disable-extensions',
+                            '--disable-cache', 
+                            '--remote-debugging-pipe',
+                            `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
+                    },
+                    acceptInsecureCerts: true,
+                    // webSocketUrl: true
+                }
+            ];
             config.services = [];
             break;
         default:
