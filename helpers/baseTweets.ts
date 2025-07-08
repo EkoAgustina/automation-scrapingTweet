@@ -24,8 +24,10 @@ async function scrollByLastIndex() {
     }
 
     if (data.length >= 20) {
-      const lastIndex = (data.length / indexArticle) - 2
-      await swipeUpwithTime(lastIndex)
+      const divider = (data.length / indexArticle)
+      const reducer = (50 / 100) * Math.ceil(divider);
+      const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
+      await swipeUpwithTime(Math.ceil(lastIndex))
       return true
     } else {
       log("WARN", `Not running swipe last index`)
@@ -270,15 +272,15 @@ async function runTweetScrapingLoops(tweetLimit: number) {
   let currentRequestTweet = 0;
 
   try {
-    if (lastIndexCount < 1) {
-      await scrollByLastIndex()
-      lastIndexCount++
-    }
     for (let divisorIndex = 0; divisorIndex < indexDivisorTotal; divisorIndex++) {
       if (checkIfTweetLimitReached(tweetLimit)) {
         log("INFO", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
         return;
       }
+      if (lastIndexCount < 1) {
+      await scrollByLastIndex()
+      lastIndexCount++
+    }
 
       for (let i = 1; i <= indexArticle; i++) {
         if (currentRequestTweet >= tweetLimit) break;
