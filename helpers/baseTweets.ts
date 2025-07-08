@@ -1,6 +1,6 @@
 import { keyElement } from "../mappings/mapper.ts";
-import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom, swipeUpIntoView } from './baseSwipe.ts';
-import { log, saveToCSV } from './baseScreen.ts';
+import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from './baseSwipe.ts';
+import { log, measureTime, saveToCSV } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
 import { tweetGetText } from "./baseGet.ts";
@@ -21,7 +21,7 @@ function loadTweetCache() {
     log("INFO", `✅ Loaded ${tweetCache.length} tweets from cache`);
   } catch (err: any) {
     tweetCache = [];
-    log("WARN", `⚠️ Could not load tweet cache: ${err.message}`);
+    log("WARNING", `Could not load tweet cache: ${err.message}`);
   }
 }
 
@@ -33,7 +33,7 @@ function saveTweetCache() {
     );
     log("INFO", "✅ Tweet cache saved to file");
   } catch (err: any) {
-    log("ERROR", `❌ Failed to save tweet cache: ${err.message}`);
+    log("ERROR", `Failed to save tweet cache: ${err.message}`);
   }
 }
 
@@ -58,7 +58,7 @@ async function scrollByLastIndex() {
       await browser.pause(3000);
       return true
     } else {
-      log("WARN", `Not running swipe last index`)
+      log("WARNING", `Not running swipe last index`)
       return false
     }
   } catch (err: any) {
@@ -67,34 +67,10 @@ async function scrollByLastIndex() {
   }
 }
 
-// function checkIfTweetLimitReached(maxLength: number): boolean {
-//   try {
-//     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-//     const data = JSON.parse(rawData);
-
-//     if (!Array.isArray(data)) {
-//       log("ERROR", "JSON file does not contain arrays")
-//       // return '❌ File JSON tidak berisi array.';
-//       return false
-//     }
-
-//     globalVariables.tweetsCount = data.length
-
-//     if (data.length >= maxLength) {
-//       log("INFO", `Tweets collected have reached ${maxLength} according to your wishes`)
-//       return true
-//     } else {
-//       log("INFO", `Tweets collected have not reached ${maxLength}`)
-//       return false
-//     }
-//   } catch (err: any) {
-//     log("ERROR", `An error occurred: ${err.message}`)
-//     return false
-//   }
-// }
 function checkIfTweetLimitReached(maxLength: number): boolean {
   const currentCount = tweetCache.length;
-  globalVariables.tweetsCount = currentCount;
+  globalVariables.tweetsCount = currentCount + 1;
+  globalVariables.desiredTweets = maxLength;
 
   if (currentCount >= maxLength) {
     log("INFO", `✅ Tweets collected have reached ${maxLength}`);
@@ -106,45 +82,6 @@ function checkIfTweetLimitReached(maxLength: number): boolean {
 }
 
 
-// function checkDuplicateTweets(tweetId: string) {
-//   // Jika ini run pertama dan file belum ada, skip
-//   try {
-//     if (!hasRunCollectOnce) {
-//       const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-//       const data = JSON.parse(rawData);
-//       // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek tweetId
-//       const found = data.some((item: any) => {
-//         return item.tweet_id === tweetId
-//       });
-//       if (found) {
-//         if (extractTweetCallCount !== 0) {
-//           log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${tweetId}`);
-//           return 'Tweet already exists';
-//         }
-//       }
-//     }
-//   } catch (err) {
-//     return 'Skip check - first run';
-//   }
-
-//   // Kalau sudah pernah jalan dan file tersedia, lanjut cek biasa
-//   try {
-//     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-//     const data = JSON.parse(rawData);
-//     const found = data.some((item: any) => {
-//       return item.tweet_id === tweetId
-//     });
-//     if (found) {
-//       log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists: ${tweetId}`);
-//       return 'Tweet already exists';
-//     }
-//     return 'Tweet not found';
-//   } catch (err: any) {
-//     // Jika file tidak bisa dibaca karena alasan lain
-//     log('ERROR', `❌ Failed to read ${globalVariables.scrapingReportsName}.json: ${err.message}`);
-//     return 'Skip check - read error';
-//   }
-// }
 function checkDuplicateTweets(tweetId: string) {
   const found = tweetCache.some((item: any) => item.tweet_id === tweetId);
   if (found) {
@@ -163,14 +100,6 @@ function extractUsername(tweet: string): string[] {
   return usernames ? usernames : [];
 }
 
-// async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallback = '0'): Promise<string> {
-//   try {
-//     const el = await tweet.$(selector);
-//     return el ? (await el.getText()).trim() || fallback : fallback;
-//   } catch {
-//     return fallback;
-//   }
-// }
 async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallback = '0'): Promise<string> {
   try {
     const el = await tweet.$(selector);
@@ -221,15 +150,6 @@ async function getTweetTextData(tweet: WebdriverIO.Element) {
   return { username, textTweet, date };
 }
 
-// async function getTweetStats(tweet: WebdriverIO.Element) {
-//   const replies = await getSafeText(tweet, `.${keyElement("tweets:replies")}`);
-//   const reposts = await getSafeText(tweet, `.${keyElement("tweets:reposts")}`);
-//   const likes = await getSafeText(tweet, `.${keyElement("tweets:likes")}`);
-//   const replyingTo = await getSafeText(tweet, `.${keyElement("tweets:replyingTo")}`, 'NA')
-//   const tweetQuotes = await getSafeText(tweet, `.${keyElement("tweets:tweetQuetes")}`, 'NA')
-
-//   return { replies, reposts, likes, replyingTo, tweetQuotes };
-// }
 async function getTweetStats(tweet: WebdriverIO.Element) {
   const [replies, reposts, likes, replyingTo, tweetQuotes] = await Promise.all([
     getSafeText(tweet, `.${keyElement("tweets:replies")}`),
@@ -313,13 +233,15 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   globalVariables.tweetCountCheck++
 
   for (const tweet of tweetArticles) {
-    const { href, tweetId } = await getTweetId(tweet)
+    // const { href, tweetId } = await getTweetId(tweet)
+    const { href, tweetId } = await measureTime("getTweetId", () => getTweetId(tweet));
     if (checkDuplicateTweets(tweetId) === 'Tweet already exists') return [];
 
-    const { username, textTweet, date } = await getTweetTextData(tweet);
+    // const { username, textTweet, date } = await getTweetTextData(tweet);
+    const { username, textTweet, date } = await measureTime("getTweetTextData", () => getTweetTextData(tweet));
     if (!username || !textTweet) return [];
 
-    const { replies, reposts, likes, replyingTo, tweetQuotes } = await getTweetStats(tweet);
+    const { replies, reposts, likes, replyingTo, tweetQuotes } = await measureTime("getTweetStats", () => getTweetStats(tweet));
     await browser.pause(1000);
     const { isRegularPost, isMention, isQuote, isReply, setTargetUsername } = getInteractionInfo(textTweet, replyingTo, tweetQuotes);
 
@@ -368,10 +290,11 @@ async function runTweetScrapingLoops(tweetLimit: number) {
         const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
-        if (i === indexArticle) {
-          await browser.pause(1000);
-          await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
-        }
+        if (i === indexArticle) await swipeUpwithTime(1)
+        // if (i === indexArticle) {
+        //   await browser.pause(1000);
+        //   await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
+        // }
 
         // Ambil data tweet
         const tweetData = await extractTweetDataAtIndex(i);

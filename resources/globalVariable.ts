@@ -28,6 +28,8 @@ export default class globalVariables {
 
   static tweetsCount: any
 
+  static desiredTweets: any
+
   /**
    * Path to the Allure environment properties file.
    * @type {string}

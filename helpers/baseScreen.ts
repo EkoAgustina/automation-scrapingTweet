@@ -24,7 +24,7 @@ const log = (level:string, message:string) => {
       logger('💡 SCRAPER').info(message)
       break;
     case 'ERROR':
-      logger('❌ SCRAPER').error(message)
+      logger('🚫 SCRAPER').error(message)
       break;
     default:
       throw new Error('Unknown conditions')
@@ -284,7 +284,6 @@ async function saveToCSV(row: string, baseName: string) {
   const filePath = path.join(folderPath, `${baseName}.csv`);
 
   try {
-    // kalau file belum ada, tulis header baru
     if (!existsSync(filePath)) {
       // const header = 'Username,Date,Text Tweets,Replies,Reposts,Likes,Interaction Type,Target Username\n';
       const header = 'Tweet ID,href,Username,Date,Text Tweets,Replies,Reposts,Likes,Is Regular Post,Is Mention,Is Quote,Is Reply,Target Username\n';
@@ -331,5 +330,34 @@ async function saveToJSON(obj: any, baseName: string) {
 }
 
 
+const executionTimes: Record<string, number[]> = {};
 
-export {elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}
+async function measureTime<T>(label: string, fn: () => Promise<T>): Promise<T> {
+  const start = Date.now();
+  const result = await fn();
+  const duration = Date.now() - start;
+
+  if (!executionTimes[label]) {
+    executionTimes[label] = [];
+  }
+  executionTimes[label].push(duration);
+
+  return result;
+}
+
+function printExecutionSummary(): void {
+  console.log('\n⏱️ Execution Time Summary:\n----------------------------');
+  Object.entries(executionTimes).forEach(([label, times]) => {
+    const total = times.reduce((a, b) => a + b, 0);
+    const avg = (total / times.length).toFixed(2);
+    const count = times.length;
+    const max = Math.max(...times);
+    const min = Math.min(...times);
+    console.log(`${label}: called ${count}x | avg: ${avg}ms | min: ${min}ms | max: ${max}ms`);
+  });
+  console.log('----------------------------\n');
+}
+
+
+
+export {measureTime, printExecutionSummary, elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}

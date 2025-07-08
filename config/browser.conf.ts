@@ -1,4 +1,3 @@
-import axios from "axios";
 import globalVariables from "../resources/globalVariable.ts";
 import { config } from "./wdio.conf.ts"
 import { env } from 'process';
@@ -126,8 +125,4 @@ config.before = async () => {
 
 };
 
-config.after = async () => {
-    const response = await axios.get('https://ipinfo.io/json');
-    console.log(response.data)
-}
 export default { config };

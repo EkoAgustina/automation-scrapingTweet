@@ -1,8 +1,7 @@
-import { log, takeScreenshot } from "../helpers/baseScreen.ts";
+import { log, printExecutionSummary, takeScreenshot } from "../helpers/baseScreen.ts";
 import globalVariables from "../resources/globalVariable.ts";
 import PropertiesReader from 'properties-reader';
 import { env } from 'process';
-import { browser } from '@wdio/globals'
 import { ITestCaseHookParameter } from "@cucumber/cucumber";
 
 
@@ -35,23 +34,20 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
       return 'selenium/standalone-chrome'
     }
   }
-  // globalVariables.featureNameAfter = world.gherkinDocument.feature.name
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
 
-  const userAgent = await browser.execute(() => {
-    return navigator.userAgent;
-  });
-  log("INFO", userAgent)
+  log ("INFO", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
+  log("INFO", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
+  log("INFO", `Reports: ${globalVariables.scrapingReportsName}.json ${globalVariables.scrapingReportsName}.csv`)
+  printExecutionSummary()
 
-  console.log(`Count of posts checked: ${globalVariables.tweetCountCheck}`)
-
-  console.log(globalVariables.tweetsCount)
-  console.log(`${globalVariables.scrapingReportsName}.json ${globalVariables.tweetsCount} tweets`)
 
 
   if (result.error) {
     await takeScreenshot(`failed_${world.pickle.name}`)
+  } else {
+    await takeScreenshot(`success${world.pickle.name}`)
   }
 }
 
