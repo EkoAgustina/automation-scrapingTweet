@@ -334,14 +334,14 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
 
 
 /**
- * Mengambil dan menyimpan data tweet sebanyak `count` tweet unik ke file CSV.
- * Tweet akan di-scroll satu per satu berdasarkan index DOM.
- * 
- * @param tweetLimit Jumlah tweet yang ingin diambil.
+ * The function scrolls through the timeline, extracts tweets one by one,
+ * and saves them to a CSV file and a JSON cache file.
+ *
+ * It checks for duplicates and skips already saved tweets.
+ *
+ * @param {number} tweetLimit - Total number of unique tweets to collect.
  */
 async function runTweetScrapingLoops(tweetLimit: number) {
-  // const request = 100;
-  // const a: number = 20;
   const requestTweet: number = tweetLimit + (tweetLimit * 0.8);
 
   const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
@@ -376,7 +376,7 @@ async function runTweetScrapingLoops(tweetLimit: number) {
         // Ambil data tweet
         const tweetData = await extractTweetDataAtIndex(i);
 
-        log("INFO", `Scrapped has been done ${extractTweetCallCount} times.`)
+        log("INFO", `The scraper has run ${extractTweetCallCount} times.`)
 
         // Jika kosong atau duplikat, lanjut ke berikutnya
         if (!tweetData.length) continue;

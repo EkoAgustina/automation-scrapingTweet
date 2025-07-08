@@ -18,13 +18,13 @@ import { env } from 'node:process';
 const log = (level:string, message:string) => {
   switch (level) {
     case 'WARNING':
-      logger('WARNING').warn(message)
+      logger('⚠️ SCRAPER').warn(message)
       break;
     case 'INFO':
-      logger('INFO').info(message)
+      logger('💡 SCRAPER').info(message)
       break;
     case 'ERROR':
-      logger('ERROR').error(message)
+      logger('❌ SCRAPER').error(message)
       break;
     default:
       throw new Error('Unknown conditions')
@@ -293,9 +293,9 @@ async function saveToCSV(row: string, baseName: string) {
 
     // lalu append baris baru
     await fs.appendFile(filePath, row + '\n', 'utf-8');
-    console.log(`✅ Baris ditambahkan ke: ${filePath}`);
+    log("INFO", `✅ Rows added to: ${filePath}`)
   } catch (err) {
-    console.error(`❌ Gagal simpan CSV: ${err}`);
+    log("ERROR", `❌ Failed to save CSV: ${err}`)
     throw err;
   }
 }
