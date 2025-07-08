@@ -1,6 +1,6 @@
 import { keyElement } from "../mappings/mapper.ts";
 import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom, swipeUpIntoView } from './baseSwipe.ts';
-import { log, saveToCSV, saveToJSON } from './baseScreen.ts';
+import { log, saveToCSV } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
 import { tweetGetText } from "./baseGet.ts";
@@ -8,14 +8,40 @@ import { tweetGetText } from "./baseGet.ts";
 
 
 let extractTweetCallCount = 0;
-let hasRunCollectOnce = false;
+// let hasRunCollectOnce = false;
 const indexArticle = 11;
 let lastIndexCount = 0
+let tweetCache: any[] = [];
 
-async function scrollByLastIndex() {
+function loadTweetCache() {
   try {
     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
     const data = JSON.parse(rawData);
+    tweetCache = Array.isArray(data) ? data : [];
+    log("INFO", `✅ Loaded ${tweetCache.length} tweets from cache`);
+  } catch (err: any) {
+    tweetCache = [];
+    log("WARN", `⚠️ Could not load tweet cache: ${err.message}`);
+  }
+}
+
+function saveTweetCache() {
+  try {
+    fs.writeFileSync(
+      `reporter/${globalVariables.scrapingReportsName}.json`,
+      JSON.stringify(tweetCache, null, 2)
+    );
+    log("INFO", "✅ Tweet cache saved to file");
+  } catch (err: any) {
+    log("ERROR", `❌ Failed to save tweet cache: ${err.message}`);
+  }
+}
+
+
+async function scrollByLastIndex() {
+  try {
+    // const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+    const data = loadTweetCache()
 
     if (!Array.isArray(data)) {
       log("ERROR", "JSON file does not contain arrays")
@@ -25,8 +51,9 @@ async function scrollByLastIndex() {
 
     if (data.length >= 20) {
       const divider = (data.length / indexArticle)
-      const reducer = (50 / 100) * Math.ceil(divider);
+      const reducer = (30 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
+      log("INFO", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       await swipeUpwithTime(Math.ceil(lastIndex))
       return true
     } else {
@@ -39,72 +66,95 @@ async function scrollByLastIndex() {
   }
 }
 
+// function checkIfTweetLimitReached(maxLength: number): boolean {
+//   try {
+//     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+//     const data = JSON.parse(rawData);
+
+//     if (!Array.isArray(data)) {
+//       log("ERROR", "JSON file does not contain arrays")
+//       // return '❌ File JSON tidak berisi array.';
+//       return false
+//     }
+
+//     globalVariables.tweetsCount = data.length
+
+//     if (data.length >= maxLength) {
+//       log("INFO", `Tweets collected have reached ${maxLength} according to your wishes`)
+//       return true
+//     } else {
+//       log("INFO", `Tweets collected have not reached ${maxLength}`)
+//       return false
+//     }
+//   } catch (err: any) {
+//     log("ERROR", `An error occurred: ${err.message}`)
+//     return false
+//   }
+// }
 function checkIfTweetLimitReached(maxLength: number): boolean {
-  try {
-    const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-    const data = JSON.parse(rawData);
+  const currentCount = tweetCache.length;
+  globalVariables.tweetsCount = currentCount;
 
-    if (!Array.isArray(data)) {
-      log("ERROR", "JSON file does not contain arrays")
-      // return '❌ File JSON tidak berisi array.';
-      return false
-    }
-
-    globalVariables.tweetsCount = data.length
-
-    if (data.length >= maxLength) {
-      log("INFO", `Tweets collected have reached ${maxLength} according to your wishes`)
-      return true
-    } else {
-      log("INFO", `Tweets collected have not reached ${maxLength}`)
-      return false
-    }
-  } catch (err: any) {
-    log("ERROR", `An error occurred: ${err.message}`)
-    return false
+  if (currentCount >= maxLength) {
+    log("INFO", `✅ Tweets collected have reached ${maxLength}`);
+    return true;
+  } else {
+    log("INFO", `📉 Tweets collected: ${currentCount}/${maxLength}`);
+    return false;
   }
 }
 
 
+// function checkDuplicateTweets(tweetId: string) {
+//   // Jika ini run pertama dan file belum ada, skip
+//   try {
+//     if (!hasRunCollectOnce) {
+//       const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+//       const data = JSON.parse(rawData);
+//       // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek tweetId
+//       const found = data.some((item: any) => {
+//         return item.tweet_id === tweetId
+//       });
+//       if (found) {
+//         if (extractTweetCallCount !== 0) {
+//           log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${tweetId}`);
+//           return 'Tweet already exists';
+//         }
+//       }
+//     }
+//   } catch (err) {
+//     return 'Skip check - first run';
+//   }
+
+//   // Kalau sudah pernah jalan dan file tersedia, lanjut cek biasa
+//   try {
+//     const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+//     const data = JSON.parse(rawData);
+//     const found = data.some((item: any) => {
+//       return item.tweet_id === tweetId
+//     });
+//     if (found) {
+//       log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists: ${tweetId}`);
+//       return 'Tweet already exists';
+//     }
+//     return 'Tweet not found';
+//   } catch (err: any) {
+//     // Jika file tidak bisa dibaca karena alasan lain
+//     log('ERROR', `❌ Failed to read ${globalVariables.scrapingReportsName}.json: ${err.message}`);
+//     return 'Skip check - read error';
+//   }
+// }
 function checkDuplicateTweets(tweetId: string) {
-  // Jika ini run pertama dan file belum ada, skip
-  try {
-    if (!hasRunCollectOnce) {
-      const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-      const data = JSON.parse(rawData);
-      // Jika file sudah bisa dibaca walaupun flag false, tetap lanjut cek tweetId
-      const found = data.some((item: any) => {
-        return item.tweet_id === tweetId
-      });
-      if (found) {
-        if (extractTweetCallCount !== 0) {
-          log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${tweetId}`);
-          return 'Tweet already exists';
-        }
-      }
+  const found = tweetCache.some((item: any) => item.tweet_id === tweetId);
+  if (found) {
+    if (extractTweetCallCount !== 0) {
+      log('WARNING', `⚠️ [${extractTweetCallCount}] Tweet already exists, ${tweetId}`);
     }
-  } catch (err) {
-    return 'Skip check - first run';
+    return 'Tweet already exists';
   }
-
-  // Kalau sudah pernah jalan dan file tersedia, lanjut cek biasa
-  try {
-    const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-    const data = JSON.parse(rawData);
-    const found = data.some((item: any) => {
-      return item.tweet_id === tweetId
-    });
-    if (found) {
-      log('WARNING', `[${extractTweetCallCount}] ⚠️ Tweet already exists: ${tweetId}`);
-      return 'Tweet already exists';
-    }
-    return 'Tweet not found';
-  } catch (err: any) {
-    // Jika file tidak bisa dibaca karena alasan lain
-    log('ERROR', `❌ Failed to read ${globalVariables.scrapingReportsName}.json: ${err.message}`);
-    return 'Skip check - read error';
-  }
+  return 'Tweet not found';
 }
+
 
 function extractUsername(tweet: string): string[] {
   const usernameRegex = /@\w+/g;
@@ -112,14 +162,28 @@ function extractUsername(tweet: string): string[] {
   return usernames ? usernames : [];
 }
 
+// async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallback = '0'): Promise<string> {
+//   try {
+//     const el = await tweet.$(selector);
+//     return el ? (await el.getText()).trim() || fallback : fallback;
+//   } catch {
+//     return fallback;
+//   }
+// }
 async function getSafeText(tweet: WebdriverIO.Element, selector: string, fallback = '0'): Promise<string> {
   try {
     const el = await tweet.$(selector);
-    return el ? (await el.getText()).trim() || fallback : fallback;
+
+    if (!await el.isDisplayed()) {
+      await el.waitForDisplayed({ timeout: 3000 }); // Tunggu max 3 detik kalau belum muncul
+    }
+
+    return (await el.getText()).trim() || fallback;
   } catch {
     return fallback;
   }
 }
+
 
 function convertDate(dateStr: string) {
   const [, day] = dateStr.split(" ");
@@ -131,7 +195,7 @@ function convertDate(dateStr: string) {
 
 async function getTweetId(tweet: WebdriverIO.Element) {
   const swipeTweetLink = await swipeUpElDisplayedCustom(tweet, `a[href*="/status/`)
-  if (swipeTweetLink !== '200') throw new Error("Tweet tidak ditemukan");
+  if (swipeTweetLink !== '200') throw new Error("Tweet not found");
   const tweetLink = await tweet.$('a[href*="/status/"]');
   const href = await tweetLink.getAttribute('href');
   const tweetId = href.split('/status/')[1];
@@ -156,15 +220,27 @@ async function getTweetTextData(tweet: WebdriverIO.Element) {
   return { username, textTweet, date };
 }
 
+// async function getTweetStats(tweet: WebdriverIO.Element) {
+//   const replies = await getSafeText(tweet, `.${keyElement("tweets:replies")}`);
+//   const reposts = await getSafeText(tweet, `.${keyElement("tweets:reposts")}`);
+//   const likes = await getSafeText(tweet, `.${keyElement("tweets:likes")}`);
+//   const replyingTo = await getSafeText(tweet, `.${keyElement("tweets:replyingTo")}`, 'NA')
+//   const tweetQuotes = await getSafeText(tweet, `.${keyElement("tweets:tweetQuetes")}`, 'NA')
+
+//   return { replies, reposts, likes, replyingTo, tweetQuotes };
+// }
 async function getTweetStats(tweet: WebdriverIO.Element) {
-  const replies = await getSafeText(tweet, `.${keyElement("tweets:replies")}`);
-  const reposts = await getSafeText(tweet, `.${keyElement("tweets:reposts")}`);
-  const likes = await getSafeText(tweet, `.${keyElement("tweets:likes")}`);
-  const replyingTo = await getSafeText(tweet, `.${keyElement("tweets:replyingTo")}`, 'NA')
-  const tweetQuotes = await getSafeText(tweet, `.${keyElement("tweets:tweetQuetes")}`, 'NA')
+  const [replies, reposts, likes, replyingTo, tweetQuotes] = await Promise.all([
+    getSafeText(tweet, `.${keyElement("tweets:replies")}`),
+    getSafeText(tweet, `.${keyElement("tweets:reposts")}`),
+    getSafeText(tweet, `.${keyElement("tweets:likes")}`),
+    getSafeText(tweet, `.${keyElement("tweets:replyingTo")}`, 'NA'),
+    getSafeText(tweet, `.${keyElement("tweets:tweetQuetes")}`, 'NA'),
+  ]);
 
   return { replies, reposts, likes, replyingTo, tweetQuotes };
 }
+
 
 function getInteractionInfo(posting: string, replyingTo: string, tweetQuetes: string) {
   const usernameMention = extractUsername(posting);
@@ -234,7 +310,6 @@ async function extractTweetDataAtIndex(index: number): Promise<string[]> {
   const tweetArticles = await $$(`${keyElement("tweets:tweetArticles")}[${index}]`);
   extractTweetCallCount++;
   globalVariables.tweetCountCheck++
-  await browser.pause(3500);
 
   for (const tweet of tweetArticles) {
     const { href, tweetId } = await getTweetId(tweet)
@@ -292,7 +367,7 @@ async function runTweetScrapingLoops(tweetLimit: number) {
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
         if (i === indexArticle) {
-          await browser.pause(2000);
+          await browser.pause(1000);
           await swipeUpIntoView(`${keyElement("tweets:tweetArticles")}[${i}]`)
         }
 
@@ -300,8 +375,6 @@ async function runTweetScrapingLoops(tweetLimit: number) {
         const tweetData = await extractTweetDataAtIndex(i);
 
         log("INFO", `Scrapped has been done ${extractTweetCallCount} times.`)
-
-        await browser.pause(2000);
 
         // Jika kosong atau duplikat, lanjut ke berikutnya
         if (!tweetData.length) continue;
@@ -324,11 +397,13 @@ async function runTweetScrapingLoops(tweetLimit: number) {
           is_reply: tweetData[11] === "true",
           target_username: tweetData[12],
         };
-        await saveToJSON(tweetObject, globalVariables.scrapingReportsName);
+        // await saveToJSON(tweetObject, globalVariables.scrapingReportsName);
+        tweetCache.push(tweetObject);         // Tambah ke memori
+        saveTweetCache();                     // Simpan ke file
+
         currentRequestTweet++;
       }
-      hasRunCollectOnce = true;
-      await browser.pause(1000);
+      // hasRunCollectOnce = true;
     }
   } catch (err: any) {
     log("ERROR", `An error occurred:, ${err.message}`)
