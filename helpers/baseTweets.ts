@@ -41,16 +41,16 @@ function saveTweetCache() {
 async function scrollByLastIndex() {
   try {
     // const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
-    const data = loadTweetCache()
+    // const data = tweetCache
 
-    if (!Array.isArray(data)) {
+    if (!Array.isArray(tweetCache)) {
       log("ERROR", "JSON file does not contain arrays")
       // return '❌ File JSON tidak berisi array.';
       return false
     }
 
-    if (data.length >= 20) {
-      const divider = (data.length / indexArticle)
+    if (tweetCache.length >= 20) {
+      const divider = (tweetCache.length / indexArticle)
       const reducer = (30 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
       log("INFO", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
@@ -92,6 +92,7 @@ async function scrollByLastIndex() {
 //   }
 // }
 function checkIfTweetLimitReached(maxLength: number): boolean {
+  loadTweetCache()
   const currentCount = tweetCache.length;
   globalVariables.tweetsCount = currentCount;
 
