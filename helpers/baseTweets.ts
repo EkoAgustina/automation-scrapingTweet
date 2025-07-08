@@ -9,6 +9,33 @@ import { tweetGetText } from "./baseGet.ts";
 
 let extractTweetCallCount = 0;
 let hasRunCollectOnce = false;
+const indexArticle = 11;
+let lastIndexCount = 0
+
+async function scrollByLastIndex() {
+  try {
+    const rawData = fs.readFileSync(`reporter/${globalVariables.scrapingReportsName}.json`, 'utf-8');
+    const data = JSON.parse(rawData);
+
+    if (!Array.isArray(data)) {
+      log("ERROR", "JSON file does not contain arrays")
+      // return '❌ File JSON tidak berisi array.';
+      return false
+    }
+
+    if (data.length >= 20) {
+      const lastIndex = (data.length / indexArticle) - 2
+      await swipeUpwithTime(lastIndex)
+      return true
+    } else {
+      log("WARN", `Not running swipe last index`)
+      return false
+    }
+  } catch (err: any) {
+    log("ERROR", `An error occurred: ${err.message}`)
+    return false
+  }
+}
 
 function checkIfTweetLimitReached(maxLength: number): boolean {
   try {
@@ -239,11 +266,14 @@ async function runTweetScrapingLoops(tweetLimit: number) {
   // const a: number = 20;
   const requestTweet: number = tweetLimit + (tweetLimit * 0.8);
 
-  const indexArticle = 11;
   const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
   let currentRequestTweet = 0;
 
   try {
+    if (lastIndexCount < 1) {
+      await scrollByLastIndex()
+      lastIndexCount++
+    }
     for (let divisorIndex = 0; divisorIndex < indexDivisorTotal; divisorIndex++) {
       if (checkIfTweetLimitReached(tweetLimit)) {
         log("INFO", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
