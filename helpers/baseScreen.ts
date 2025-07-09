@@ -43,23 +43,23 @@ function sleep (duration:number) {
     } while (currentDate - date < duration * 1000);
 }
 
-// async function customGeolocation(customLatitude:any, customLongitude:any) {
-// //   await browser.emulate('geolocation', {
-// //     latitude: customLatitude,
-// //     longitude: customLongitude,
-// //     accuracy: 100
-// // })
-// try {
-//   await browser.sendCommand('Emulation.setGeolocationOverride', {
+async function customGeolocation(customLatitude:any, customLongitude:any) {
+//   await browser.emulate('geolocation', {
 //     latitude: customLatitude,
 //     longitude: customLongitude,
 //     accuracy: 100
-// });
-// } catch (err:any) {
-//   log("ERROR", err.message)
-//   throw err
-// }
-// }
+// })
+try {
+  await browser.sendCommand('Emulation.setGeolocationOverride', {
+    latitude: customLatitude,
+    longitude: customLongitude,
+    accuracy: 100
+});
+} catch (err:any) {
+  log("ERROR", err.message)
+  throw err
+}
+}
 
 /**
  * For set browser size.
@@ -360,4 +360,4 @@ function printExecutionSummary(): void {
 
 
 
-export {measureTime, printExecutionSummary, elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}
+export {measureTime, printExecutionSummary, elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, customGeolocation, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}

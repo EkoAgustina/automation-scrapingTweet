@@ -1,3 +1,4 @@
+import { customGeolocation } from "../helpers/baseScreen.ts";
 import globalVariables from "../resources/globalVariable.ts";
 import { config } from "./wdio.conf.ts"
 import { env } from 'process';
@@ -122,6 +123,7 @@ config.before = async () => {
                 });
             }
         });
+    customGeolocation(globalVariables.setLatitude, globalVariables.setLongitude)
 
 };
 

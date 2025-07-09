@@ -97,8 +97,13 @@ async function swipeUpwithTime (duration:number) {
 
 
     for (let i = 0; i < duration; i++) {
+        if (duration > 20) {
+            await browser.pause(5000);
+        } else {
+            
+            await browser.pause(1000);
+        }
         await browser.scroll(coordinateX, coordinateY);
-        await browser.pause(1000);
     }
 }
 
