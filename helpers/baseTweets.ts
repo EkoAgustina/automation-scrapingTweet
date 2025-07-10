@@ -95,13 +95,13 @@ function checkDuplicateTweets(tweetId: string) {
 }
 
 async function handleSww() {
-  const retryButton = "tweets:retryButton_sww"
+  const retryButton = keyElement("tweets:retryButton_sww")
   let attempts = 0;
   const maxAttempts = 5;
   try {
     if (await elWaitForExist(retryButton, 3500)) {
-      while (await (await findElement("tweets:retryButton_sww")).isDisplayed() ) {
-      await actionClick("tweets:retryButton_sww")
+      while (await (await findElement(retryButton)).isDisplayed() ) {
+      await actionClick(retryButton)
       await browser.pause(4000);
       attempts++
 
