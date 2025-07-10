@@ -96,7 +96,7 @@ async function swipeUpwithTime (duration:number) {
 
     for (let i = 0; i < duration; i++) {
         if (duration > 20) {
-            await browser.pause(5000);
+            await browser.pause(6000);
         } else {
             
             await browser.pause(1000);

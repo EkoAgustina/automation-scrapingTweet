@@ -1,6 +1,6 @@
 import { keyElement } from "../mappings/mapper.ts";
 import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from './baseSwipe.ts';
-import { elWaitForExist, findElement, log, measureTime, saveToCSV } from './baseScreen.ts';
+import { elWaitForExist, findElement, log, measureTime, pageLoad, saveToCSV } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
 import { tweetGetText } from "./baseGet.ts";
@@ -97,17 +97,22 @@ function checkDuplicateTweets(tweetId: string) {
 async function handleSww() {
   const retryButton = keyElement("tweets:retryButton_sww")
   let attempts = 0;
-  const maxAttempts = 5;
+  const maxAttempts = 6;
   try {
     if (await elWaitForExist(retryButton, 3500)) {
       while (await (await findElement(retryButton)).isDisplayed() ) {
+      if (attempts === 2 || attempts === 4 || attempts === 5) {
+          await browser.pause(60000);
+          log("INFO", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
+      }
       await browser.pause(2000);
+      await pageLoad(5)
       await actionClick(retryButton)
       await browser.pause(4000);
       attempts++
 
       if (attempts >= maxAttempts) {
-        throw new Error(`SWW retry still keeps appearing`)
+        throw new Error(`Attempts exhausted! It has been tried ${attempts} times, but the 'sww retry' keeps appearing.`)
       }
     }
     }
