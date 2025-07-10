@@ -1,11 +1,18 @@
-import { log, printExecutionSummary, takeScreenshot } from "../helpers/baseScreen.ts";
-import globalVariables from "../resources/globalVariable.ts";
+import globalVariables from "../../resources/globalVariable.ts";
 import PropertiesReader from 'properties-reader';
-import { env } from 'process';
 import { ITestCaseHookParameter } from "@cucumber/cucumber";
+import { log } from "../utils/logger.ts";
+import { printExecutionSummary } from "../utils/timer.ts";
+import { takeScreenshot } from "../utils/webdriver/browser.ts";
 
-
-async function hookBeforeScenario(world: ITestCaseHookParameter) {
+/**
+ * Executes before each Cucumber scenario.
+ * Extracts the day from the scenario name if it matches the format "<day> March 2025"
+ * and sets a global variable for report naming.
+ *
+ * @param world - The Cucumber World object containing scenario metadata.
+ */
+export async function hookBeforeScenario(world: ITestCaseHookParameter) {
   const dateMatch = world.pickle.name.match(/\b(\d{1,2}) March 2025\b/);
 
   if (dateMatch) {
@@ -24,11 +31,11 @@ async function hookBeforeScenario(world: ITestCaseHookParameter) {
  * @param {any} result results object containing scenario results
  * @returns {Promise<void>} - A Promise that resolves after updating properties and saving screenshots.
  */
-async function hooksAfterScenario(world: any, result: any): Promise<void> {
+export async function hooksAfterScenario(world: any, result: any): Promise<void> {
   const propertiesPath = globalVariables.allureProperties;
   const properties = PropertiesReader(propertiesPath);
   const allureHostUrl = () => {
-    if (env.HOST_NAME === 'localhost:8080') {
+    if (process.env.HOST_NAME === 'localhost:8080') {
       return 'localhost:8080'
     } else {
       return 'selenium/standalone-chrome'
@@ -37,7 +44,7 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
 
-  log ("INFO", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
+  log("INFO", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
   log("INFO", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
   log("INFO", `Reports: ${globalVariables.scrapingReportsName}.json ${globalVariables.scrapingReportsName}.csv`)
   printExecutionSummary()
@@ -50,6 +57,3 @@ async function hooksAfterScenario(world: any, result: any): Promise<void> {
     await takeScreenshot(`success${world.pickle.name}`)
   }
 }
-
-
-export { hookBeforeScenario, hooksAfterScenario };

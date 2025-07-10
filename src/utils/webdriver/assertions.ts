@@ -1,6 +1,6 @@
-import { findElement } from "./baseScreen.ts"
-import { parseTestData, keyElement } from "../mappings/mapper.ts"
-import { actionGetText } from "./baseGet.ts"
+import { parseTestData, keyElement } from "../mapper.ts"
+import { findElement } from "./element.ts";
+import { actionGetText } from "./getText.ts"
 
 
 /**
@@ -10,7 +10,7 @@ import { actionGetText } from "./baseGet.ts"
  * @returns {Promise<boolean>} A promise that resolves with a boolean indicating whether the element meets the condition.
  * @throws {Error} If the element's display state does not match the expected condition.
  */
-async function elementDisplayed (locator:string, condition:string) {
+export async function elementDisplayed(locator: string, condition: string) {
   const elDisplayed = await (await findElement(locator)).isDisplayed()
   switch (condition) {
     case 'is displayed':
@@ -37,7 +37,7 @@ async function elementDisplayed (locator:string, condition:string) {
  * @returns {Promise<void>} - A Promise that resolves after the comparison is done.
  * @throws {Error} - If the condition is not recognized.
  */
-async function equalData (condition:string, locator:string, testData:string) {
+export async function equalData(condition: string, locator: string, testData: string) {
   switch (condition) {
     case 'equal':
       await $(keyElement(locator)).waitUntil(
@@ -75,7 +75,7 @@ async function equalData (condition:string, locator:string, testData:string) {
  * @returns {Promise<string>} A promise that resolves if the title matches the expected title, 
  *   or rejects with an error message if the title does not match or if the condition is invalid.
  */
-function titleEqual(condition: string, title: string): Promise<string> {
+export function titleEqual(condition: string, title: string): Promise<string> {
   return new Promise((resolve, reject) => {
     setTimeout(async () => {
       const getTitle = await browser.getTitle();
@@ -108,36 +108,34 @@ function titleEqual(condition: string, title: string): Promise<string> {
  * @returns {Promise<string>} A promise that resolves if the URL matches the expected URL and condition, 
  *   or rejects with an error message if the URL does not match or if the condition is invalid.
  */
-async function urlEqual(condition:string, url:string): Promise<string> {
-  return new Promise ((resolve,reject) => {
+export async function urlEqual(condition: string, url: string): Promise<string> {
+  return new Promise((resolve, reject) => {
     setTimeout(async () => {
       const getUrl = await browser.getUrl();
-      switch(condition){
+      switch (condition) {
         case 'equal':
           if (getUrl === parseTestData(url)) {
-            setTimeout (() =>{
-              resolve (`Currently opened website URL '${getUrl}' is equal with '${parseTestData(url)}' as expected`)
-            },3000)
+            setTimeout(() => {
+              resolve(`Currently opened website URL '${getUrl}' is equal with '${parseTestData(url)}' as expected`)
+            }, 3000)
           }
           else if (getUrl !== parseTestData(url)) {
-            reject (`Currently opened website URL '${getUrl}' is not equal with '${parseTestData(url)}' not as expected!`)
+            reject(`Currently opened website URL '${getUrl}' is not equal with '${parseTestData(url)}' not as expected!`)
           }
-        break;
+          break;
         case 'not equal':
           if (getUrl === parseTestData(url)) {
-            setTimeout (() =>{
-              reject (`Currently opened website URL '${getUrl}' is equal with '${parseTestData(url)}' not as expected!`)
-            },3000)
+            setTimeout(() => {
+              reject(`Currently opened website URL '${getUrl}' is equal with '${parseTestData(url)}' not as expected!`)
+            }, 3000)
           }
           else if (getUrl !== parseTestData(url)) {
-            resolve (`Currently opened website URL '${getUrl}' is not equal with '${parseTestData(url)}' as expected`)
+            resolve(`Currently opened website URL '${getUrl}' is not equal with '${parseTestData(url)}' as expected`)
           }
-        break;
+          break;
         default:
-          reject (`Unknown conditions!`)
+          reject(`Unknown conditions!`)
       }
-  }, 3000)
+    }, 3000)
   })
 }
-
-export { elementDisplayed, equalData, titleEqual, urlEqual };

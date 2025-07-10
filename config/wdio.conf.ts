@@ -1,8 +1,7 @@
 import type { Options } from '@wdio/types'
-import { env } from 'process';
-import { hookBeforeScenario, hooksAfterScenario } from "../hooks/driverHooks.ts"
 import { specConfig, allureConfig } from "./report.conf.ts"
-import { log } from '../helpers/baseScreen.ts';
+import { log } from '../src/utils/logger.ts';
+import { hookBeforeScenario, hooksAfterScenario } from '../src/hooks/driverHooks.ts';
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -34,7 +33,7 @@ export const config: Options.Testrunner = {
     // of the config file unless it's absolute.
     //
     specs: [
-        '../cucumber/features/**/*.feature'
+        '../src/cucumber/features/**/*.feature'
     ],
     // Patterns to exclude.
     exclude: [
@@ -146,7 +145,7 @@ export const config: Options.Testrunner = {
     // If you are using Cucumber you need to specify the location of your step definitions.
     cucumberOpts: {
         // <string[]> (file/dir) require files before executing features
-        require: ['cucumber/step-definitions/steps.ts'],
+        require: ['src/cucumber/step-definitions/steps.ts'],
         // <boolean> show full backtrace for errors
         backtrace: false,
         // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -164,7 +163,7 @@ export const config: Options.Testrunner = {
         // <boolean> fail if there are any undefined or pending steps
         strict: false,
         // <string> (expression) only execute the features or scenarios with tags matching the expression
-        tagExpression: env.CUCUMBER_TAGS_EXPRESSION,
+        tagExpression: process.env.CUCUMBER_TAGS_EXPRESSION,
         // <number> timeout for step definitions
         timeout: 32400000,
         // <boolean> Enable this config to treat undefined definitions as warnings.
@@ -241,7 +240,7 @@ export const config: Options.Testrunner = {
      * @param {GherkinDocument.IFeature} feature  Cucumber feature object
      */
     beforeFeature: function () {
-        const loopCountStr = env.TWEETS_COUNTS_REQUEST;
+        const loopCountStr = process.env.TWEETS_COUNTS_REQUEST;
         const loopCount = parseInt(loopCountStr || '', 10);
 
         if (isNaN(loopCount)) {

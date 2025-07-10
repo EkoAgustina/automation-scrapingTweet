@@ -1,6 +1,6 @@
-import {log} from "./baseScreen.ts"
-import { browser} from '@wdio/globals'
-import { findElement,elWaitForExistTweet } from "./baseScreen.ts"
+import { browser } from '@wdio/globals'
+import { elWaitForExistTweet, findElement } from './element.ts';
+import { log } from '../logger.ts';
 
 
 /**
@@ -8,24 +8,22 @@ import { findElement,elWaitForExistTweet } from "./baseScreen.ts"
  * @param {string} locator - The locator of the element to check its display status.
  * @returns {Promise<void>} - A Promise that resolves after the element is displayed or if it's already displayed.
  */
-async function swipeUpElDisplayed (locator:string) : Promise<string> {
+export async function swipeUpElDisplayed(locator: string): Promise<string> {
     try {
         const windowSize = await browser.getWindowSize();
-        const coordinateX = Math.round(windowSize.width * 0.2) 
+        const coordinateX = Math.round(windowSize.width * 0.2)
         const coordinateY = Math.round(windowSize.height * 1.70)
-        // const coordinateX = Math.round (windowSize.width * 0.2)
-        // const coordinateY = Math.round(windowSize.height * 1.70)
         let attempts = 0;
         const maxAttempts = 13;
 
-        while (!await (await findElement(locator)).isDisplayed() ) {
-            await browser.scroll(coordinateX,coordinateY)
+        while (!await (await findElement(locator)).isDisplayed()) {
+            await browser.scroll(coordinateX, coordinateY)
             log("INFO", `Swipe attempts: ${attempts}`);
             await browser.pause(1000);
             attempts++
 
             if (attempts >= maxAttempts) {
-                log("ERROR",`${locator} not found, swipe up exceeded` )
+                log("ERROR", `${locator} not found, swipe up exceeded`)
                 return '404'
             }
         }
@@ -33,32 +31,28 @@ async function swipeUpElDisplayed (locator:string) : Promise<string> {
         // await scrollIntoView(locator)
         log("INFO", `${locator} found after ${attempts} swipes`);
         return '200'
-    } catch (err:any) {
+    } catch (err: any) {
         log("ERROR", err.message)
         throw err
     }
 }
 
-async function swipeUpElDisplayedCustom (tweet: WebdriverIO.Element, locator:string) : Promise<string> {
+export async function swipeUpElDisplayedCustom(tweet: WebdriverIO.Element, locator: string): Promise<string> {
     try {
         const windowSize = await browser.getWindowSize();
-        const coordinateX = Math.round(windowSize.width * 0.2) 
+        const coordinateX = Math.round(windowSize.width * 0.2)
         const coordinateY = Math.round(windowSize.height * 1.70)
-        // const coπordinateX = Math.round (windowSize.width * 0.2)
-        // const coordinateY = Math.round(windowSize.height * 1.70)
         let attempts = 0;
         const maxAttempts = 6;
 
-        while (!await elWaitForExistTweet(tweet, locator) ) {
-            await browser.scroll(coordinateX,coordinateY)
+        while (!await elWaitForExistTweet(tweet, locator)) {
+            await browser.scroll(coordinateX, coordinateY)
             log("INFO", `Swipe attempts: ${attempts}`);
             await browser.pause(1000);
             attempts++
 
             if (attempts >= maxAttempts) {
-                // throw new Error(`${keyElement(locator)} not found, swipe up exceeded`)
-                // console.error(`${keyElement(locator)} not found, swipe up exceeded`)
-                console.error(`${locator} not found, swipe up exceeded`)
+                log("ERROR", `${locator} not found, swipe up exceeded`)
                 return '404'
             }
         }
@@ -66,18 +60,18 @@ async function swipeUpElDisplayedCustom (tweet: WebdriverIO.Element, locator:str
         // await scrollIntoView(locator)
         log("INFO", `${locator} found after ${attempts} swipes`);
         return '200'
-    } catch (err:any) {
+    } catch (err: any) {
         log("ERROR", err.message)
         throw err
     }
 }
 
 
-async function swipeUpIntoView (locator:string) : Promise<string> {
+export async function swipeUpIntoView(locator: string): Promise<string> {
     try {
-       (await findElement(locator)).scrollIntoView()
+        (await findElement(locator)).scrollIntoView()
         return '200'
-    } catch (err:any) {
+    } catch (err: any) {
         log("ERROR", err.message)
         throw err
     }
@@ -86,23 +80,14 @@ async function swipeUpIntoView (locator:string) : Promise<string> {
  * Simulates a swipe up action on the screen for a given duration.
  * @param {number} time - The duration of the swipe action, specified in the number of repetitions.
  */
-async function swipeUpwithTime (duration:number) {
+export async function swipeUpwithTime(duration: number) {
     const windowSize = await browser.getWindowSize();
-    // const coordinateX = Math.round (windowSize.width * 0.2)
-    // const coordinateY = Math.round(windowSize.height * 1.70)
-    const coordinateX = Math.round (windowSize.width * 0.2)
+    const coordinateX = Math.round(windowSize.width * 0.2)
     const coordinateY = Math.round(windowSize.height * 1.70)
 
 
     for (let i = 0; i < duration; i++) {
-        if (duration > 20) {
-            await browser.pause(6000);
-        } else {
-            
-            await browser.pause(1000);
-        }
         await browser.scroll(coordinateX, coordinateY);
+        await browser.pause(1000);
     }
 }
-
-export {swipeUpElDisplayed, swipeUpElDisplayedCustom, swipeUpwithTime, swipeUpIntoView };

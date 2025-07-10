@@ -1,4 +1,6 @@
-import { findElement, log, elWaitForExistTweet } from "./baseScreen.ts";
+import { log } from "../logger.ts";
+import { elWaitForExistTweet, findElement } from "./element.ts";
+
 
 
 /**
@@ -7,7 +9,7 @@ import { findElement, log, elWaitForExistTweet } from "./baseScreen.ts";
  * @returns {Promise<string>} A promise that resolves with the text content of the element.
  * @throws {Error} If the text content is empty or null.
  */
-async function actionGetText(locator: string): Promise<string> {
+export async function actionGetText(locator: string): Promise<string> {
   try {
     const textValue = await (await findElement(locator)).getText()
 
@@ -23,7 +25,15 @@ async function actionGetText(locator: string): Promise<string> {
   }
 }
 
-async function tweetGetText(tweet: WebdriverIO.Element, locator: string) {
+/**
+ * Attempts to retrieve the text content of a child element within a tweet element.
+ *
+ * @param tweet - The WebdriverIO tweet element that contains the target child element.
+ * @param locator - A selector string to locate the specific element inside the tweet.
+ * @returns The trimmed text content if found and non-empty.
+ * @throws Will throw an error if the element does not exist or contains no readable text.
+ */
+export async function tweetGetText(tweet: WebdriverIO.Element, locator: string) {
   try {
     const elWaitForExist = await elWaitForExistTweet(tweet, locator)
     if (elWaitForExist) {
@@ -44,5 +54,3 @@ async function tweetGetText(tweet: WebdriverIO.Element, locator: string) {
     throw err
   }
 }
-
-export { actionGetText, tweetGetText };

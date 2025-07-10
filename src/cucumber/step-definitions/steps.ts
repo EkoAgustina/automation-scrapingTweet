@@ -1,11 +1,11 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
-import { baseOpenBrowser, takeScreenshot, pageLoad, sleep, actionEnter, log } from '../../helpers/baseScreen.ts';
-import { actionClick } from '../../helpers/baseClick.ts';
-import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../helpers/baseExpect.ts';
-import { swipeUpwithTime, swipeUpElDisplayed } from "../../helpers/baseSwipe.ts";
-import { actionFill } from '../../helpers/baseFill.ts';
-import { runTweetScrapingLoops } from '../../helpers/baseTweets.ts';
-import { env } from 'process';
+import { actionClick } from '../../utils/webdriver/click.ts';
+import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../utils/webdriver/assertions.ts';
+import { swipeUpwithTime, swipeUpElDisplayed } from "../../utils/webdriver/swipeActions.ts";
+import { actionFill } from '../../utils/webdriver/fillInput.ts';
+import { runTweetScrapingLoops } from '../../scraper/tweetCollector.ts';
+import { actionEnter, baseOpenBrowser, pageLoad, takeScreenshot } from '../../utils/webdriver/browser.ts';
+import { log } from '../../utils/logger.ts';
 
 /**
  * Step definition for the Cucumber step: Given User open "<page>".
@@ -41,7 +41,7 @@ When(/^User click "(.*)"$/, async (locator) => {
 
 When(/^Users do scraping twitter data$/,async () => {
     try {
-        const loopCountStr = env.TWEETS_COUNTS_REQUEST;
+        const loopCountStr = process.env.TWEETS_COUNTS_REQUEST;
         const loopCount = parseInt(loopCountStr || '', 10);
 
         if (isNaN(loopCount)) {
@@ -182,7 +182,6 @@ Then(/^User fill "(.*)" with data "(.*)"$/, async (locator, test_data) => {
 Then(/^User press enter$/, async () => {
     try {
         await actionEnter();
-        sleep(1);
     } catch (err: any) {
         log("ERROR", err.message)
         throw err

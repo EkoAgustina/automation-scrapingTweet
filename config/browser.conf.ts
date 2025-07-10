@@ -1,11 +1,10 @@
-import { customGeolocation } from "../helpers/baseScreen.ts";
 import globalVariables from "../resources/globalVariable.ts";
+import { customGeolocation } from "../src/utils/webdriver/browser.ts";
 import { config } from "./wdio.conf.ts"
-import { env } from 'process';
 
 if (globalVariables.os === 'linux') {
-    config.hostname = env.HOST_NAME!.split(':')[0];
-    config.port = parseInt(env.HOST_NAME!.split(':')[1]);
+    config.hostname = process.env.HOST_NAME!.split(':')[0];
+    config.port = parseInt(process.env.HOST_NAME!.split(':')[1]);
     config.capabilities = [
         {
             maxInstances: 6,
@@ -30,7 +29,7 @@ if (globalVariables.os === 'linux') {
 
     config.services = [];
 } else {
-    const browserName = env.BROWSER_NAME;
+    const browserName = process.env.BROWSER_NAME;
     switch (browserName) {
         case 'headless':
             config.capabilities = [
@@ -68,8 +67,8 @@ if (globalVariables.os === 'linux') {
             ];
             break;
         case 'docker':
-            config.hostname = env.HOST_NAME!.split(':')[0];
-            config.port = parseInt(env.HOST_NAME!.split(':')[1]);
+            config.hostname = process.env.HOST_NAME!.split(':')[0];
+            config.port = parseInt(process.env.HOST_NAME!.split(':')[1]);
             config.path = "/wd/hub"
             config.capabilities = [
                 {
