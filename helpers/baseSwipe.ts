@@ -25,9 +25,7 @@ async function swipeUpElDisplayed (locator:string) : Promise<string> {
             attempts++
 
             if (attempts >= maxAttempts) {
-                // throw new Error(`${keyElement(locator)} not found, swipe up exceeded`)
-                // console.error(`${keyElement(locator)} not found, swipe up exceeded`)
-                console.error(`${locator} not found, swipe up exceeded`)
+                log("ERROR",`${locator} not found, swipe up exceeded` )
                 return '404'
             }
         }

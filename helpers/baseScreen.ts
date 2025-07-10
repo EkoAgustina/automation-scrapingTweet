@@ -122,12 +122,13 @@ async function scrollIntoView(locator: string) {
  * @param {string} locator - The locator of the element to wait for.
  * @returns {Promise<void>} - A Promise that resolves after the element exists or after the timeout.
  */
-async function elWaitForExist (locator:string) {
+async function elWaitForExist (locator:string, duration= 6500) {
   try {
-    await $(locator).waitForExist({ timeout: 6500 })
+    await $(locator).waitForExist({ timeout: duration })
+    return true
   } catch (err) {
     log('WARNING', (err as Error).message)
-    sleep(2)
+    return false
   }
 }
 
@@ -360,4 +361,4 @@ function printExecutionSummary(): void {
 
 
 
-export {measureTime, printExecutionSummary, elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, customGeolocation, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}
+export {measureTime, printExecutionSummary, elWaitForExistTweet, saveToJSON, saveToCSV, baseOpenBrowser, findElement, elWaitForExist, takeScreenshot, sleep, pageLoad, stdoutAnsiColor, customGeolocation, scrollIntoView, getCurrentDate, cleanDirectory, log, actionEnter, setBrowserSize}

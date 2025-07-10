@@ -1,9 +1,10 @@
 import { keyElement } from "../mappings/mapper.ts";
 import { swipeUpElDisplayed, swipeUpwithTime, swipeUpElDisplayedCustom } from './baseSwipe.ts';
-import { log, measureTime, saveToCSV } from './baseScreen.ts';
+import { elWaitForExist, findElement, log, measureTime, saveToCSV } from './baseScreen.ts';
 import globalVariables from "../resources/globalVariable.ts";
 import * as fs from 'fs';
 import { tweetGetText } from "./baseGet.ts";
+import { actionClick } from "./baseClick.ts";
 
 
 
@@ -91,6 +92,27 @@ function checkDuplicateTweets(tweetId: string) {
     return 'Tweet already exists';
   }
   return 'Tweet not found';
+}
+
+async function handleSww() {
+  const retryButton = "tweets:retryButton_sww"
+  let attempts = 0;
+  const maxAttempts = 5;
+  try {
+    if (await elWaitForExist(retryButton, 3500)) {
+      while (await (await findElement("tweets:retryButton_sww")).isDisplayed() ) {
+      await actionClick("tweets:retryButton_sww")
+      await browser.pause(4000);
+      attempts++
+
+      if (attempts >= maxAttempts) {
+        throw new Error(`SWW retry still keeps appearing`)
+      }
+    }
+    }
+  } catch (err: any) {
+    throw err
+  }
 }
 
 
@@ -287,6 +309,7 @@ async function runTweetScrapingLoops(tweetLimit: number) {
           log("INFO", `✅ Tweet limit of ${tweetLimit} reached during iteration ${i}. Stopping loop.`);
           break;
         }
+        await handleSww()
         const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
