@@ -101,6 +101,7 @@ async function handleSww() {
   try {
     if (await elWaitForExist(retryButton, 3500)) {
       while (await (await findElement(retryButton)).isDisplayed() ) {
+      await browser.pause(2000);
       await actionClick(retryButton)
       await browser.pause(4000);
       attempts++
@@ -111,6 +112,7 @@ async function handleSww() {
     }
     }
   } catch (err: any) {
+    log("ERROR",err.message)
     throw err
   }
 }

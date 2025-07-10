@@ -17,9 +17,10 @@ repliesNew: 'By.xpath => (//button[contains(@aria-label, "Replies. Reply")]//spa
 getIdtweets: 'By.xpath => //div[contains(@class, "css-175oi2r") and contains(@class, "r-1d09ksm") and contains(@class, "r-18u37iz") and contains(@class, "r-1wbh5a2")]'
 accountName: 'By.xpath => //a[starts-with(@href, "/") and not(contains(@href, "/status"))]//div[contains(@class, "r-1awozwy") and contains(@class, "r-18u37iz")]/div/span/span'
 
-# FOR SNA
+# FOR SNA //div[.='Retry']
 replyingTo: 'By.xpath => //div[starts-with(normalize-space(.), "Replying to @")]'
 tweetQuetes: 'By.xpath => //div[@role="link"]//span[starts-with(text(), "@")]'
 
 
-retryButton_sww: 'By.xpath => //button[@class="css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-3pj75a r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l"]'
+# retryButton_sww: 'By.xpath => //button[@class="css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-3pj75a r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l"]'
+retryButton_sww: 'By.xpath => //div[.="Retry"]'
