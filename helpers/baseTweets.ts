@@ -102,16 +102,16 @@ async function handleSww() {
     if (await elWaitForExist(retryButton, 3500)) {
       while (await (await findElement(retryButton)).isDisplayed() ) {
       if (attempts) {
-        log("INFO", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
+        log("WARNING", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
         await browser.pause(180000); // three minutes
       } else if (attempts === 4) {
-        log("INFO", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
+        log("WARNING", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
         await browser.pause(300000); // five minutes
       } else if (attempts === 5) {
-        log("INFO", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
+        log("WARNING", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
         await browser.pause(480000); // eight minutes
       } else if (attempts === 6) {
-        log("INFO", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
+        log("WARNING", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)  
         await browser.pause(600000);
       }
       await browser.pause(2000);
