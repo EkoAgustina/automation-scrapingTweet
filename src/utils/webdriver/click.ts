@@ -13,7 +13,7 @@ async function actionClick(locator: string): Promise<void> {
     await (await findElement(locator)).click()
   } catch (err: unknown) {
     if (err instanceof Error) {
-      log("ERROR", err.message);
+      log('error', 'An error occurred while trying to fill', { err: new Error(err.message) });
       throw err;
     } else {
       throw new Error("An unknown error occurred during click.");

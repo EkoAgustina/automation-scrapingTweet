@@ -10,8 +10,8 @@ export async function elWaitForExist(locator: string, duration = 6500) {
   try {
     await $(locator).waitForExist({ timeout: duration })
     return true
-  } catch (err) {
-    log('WARNING', (err as Error).message)
+  } catch (err:any) {
+    log('warn', 'An error occurred, element does not exist in the DOM', { err: err.message });
     return false
   }
 }
@@ -33,8 +33,8 @@ export async function elWaitForExistTweet(tweet: WebdriverIO.Element, locator: s
     await browser.pause(2000)
     await (await tweet.$(locator)).waitForExist({ timeout: 6500 })
     return true
-  } catch (err) {
-    log('WARNING', (err as Error).message)
+  } catch (err:any) {
+    log('warn', 'An error occurred, the tweet object element does not exist in the DOM', { err: err.message});
     return false
   }
 }
@@ -51,7 +51,6 @@ export const findElement = async (locator: string): Promise<WebdriverIO.Element>
       $(locator)
     ])
       .then((element) => {
-        log("INFO", locator)
         resolve(element[1])
       })
       .catch((err) => {

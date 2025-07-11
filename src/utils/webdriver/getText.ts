@@ -16,12 +16,12 @@ export async function actionGetText(locator: string): Promise<string> {
     if (textValue === '' || textValue === null) {
       throw new Error(`Cannot get text on element '${locator}'`);
     } else {
-      log("INFO", textValue)
+      log("info", textValue)
       return textValue;
     }
   } catch (err: any) {
-    log("ERROR", err.message)
-    throw err
+    log('error', 'An error occurred while trying to get text from object tweet', { err: new Error(err.message) });
+    return ""
   }
 }
 
@@ -45,12 +45,12 @@ export async function tweetGetText(tweet: WebdriverIO.Element, locator: string) 
       }
 
       else {
-        log("INFO", textValue)
+        log("info", textValue)
         return textValue.trim();
       }
     }
   } catch (err: any) {
-    log('ERROR', `An error occurred while trying to get text: ${err.message}`)
+    log('error', 'An error occurred while trying to get text from object tweet', { err: new Error(err.message) });
     throw err
   }
 }

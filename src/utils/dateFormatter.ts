@@ -8,9 +8,29 @@ export function getCurrentDate() {
   return date;
 }
 
-export function convertDate(dateStr: string) {
-  const [, day] = dateStr.split(" ");
-  const indonesianMonth = "Maret";
+export function convertDate(dateStr: string): string {
+  const [monthAbbr, day] = dateStr.split(" ");
 
-  return `${day} ${indonesianMonth} 2025`;
+  const monthMap: { [key: string]: string } = {
+    Jan: "January",
+    Feb: "February",
+    Mar: "March",
+    Apr: "April",
+    May: "May",
+    Jun: "June",
+    Jul: "July",
+    Aug: "August",
+    Sep: "September",
+    Oct: "October",
+    Nov: "November",
+    Dec: "December"
+  };
+
+  const englishMonth = monthMap[monthAbbr];
+
+  if (!englishMonth) {
+    throw new Error(`Unknown month abbreviation: ${monthAbbr}`);
+  }
+
+  return `${englishMonth} ${day}, 2025`;
 }

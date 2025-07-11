@@ -71,7 +71,7 @@ export const config: Options.Testrunner = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'info',
+    logLevel: 'error',
     //
     // Set specific log levels per logger
     // loggers:
@@ -247,7 +247,7 @@ export const config: Options.Testrunner = {
         throw new Error("TWEETS_COUNTS_REQUEST must be a valid number.");
         }
 
-        log("INFO", `TWEETS COUNTS REQUEST ${loopCount}`)
+        log("info", `TWEETS COUNTS REQUEST ${loopCount}`)
     },
     /**
      *

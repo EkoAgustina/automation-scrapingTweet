@@ -14,7 +14,7 @@ export async function actionFill(locator: string, test_data: string): Promise<vo
             await (await findElement(locator)).addValue(char);
         }
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred while trying to fill', { err: new Error(err.message) });
         throw err
     }
 }

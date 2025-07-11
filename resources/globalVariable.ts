@@ -26,9 +26,11 @@ export default class globalVariables {
 
   static scrapingReportsName: any;
 
+  static desiredTweets: any
+
   static tweetsCount: any
 
-  static desiredTweets: any
+  static scenarioName: any
 
   /**
    * Path to the Allure environment properties file.

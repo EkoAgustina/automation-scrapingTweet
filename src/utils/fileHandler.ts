@@ -2,6 +2,21 @@ import { existsSync, readdirSync, mkdirSync } from 'node:fs';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { log } from './logger.ts';
+import globalVariables from '../../resources/globalVariable.ts';
+
+
+const CSV_CONFIG = {
+  tweetData: {
+    fileName: (baseName: string) => `${baseName}.csv`,
+    header: 'Tweet ID,href,Username,Date,Text Tweet,Replies,Reposts,Likes,Is Regular Post,Is Mention,Mention to,Is Quote,Quote to,Is Reply,Reply to\n',
+  },
+  metaData: {
+    fileName: (baseName: string) => `${baseName}_metadata.csv`,
+    header: 'Username,Posts Count,Joined,Following,Follower,Verified\n',
+  },
+} as const;
+
+
 /**
  * Saves a single row of CSV data to a file with the given base filename.
  * 
@@ -15,28 +30,67 @@ import { log } from './logger.ts';
  * @param {string} baseName - The base name for the CSV file (without extension).
  * @throws Will throw an error if file operations fail.
  */
-export async function saveToCSV(row: string, baseName: string) {
-  const folderPath = path.join('reporter');
+export async function saveToCSV(row: string, baseName: string, type: 'tweetData' | 'metaData') {
+  const folderPath = path.resolve('reporter', globalVariables.scrapingReportsName);
   if (!existsSync(folderPath)) {
     mkdirSync(folderPath, { recursive: true });
   }
 
-  const filePath = path.join(folderPath, `${baseName}.csv`);
+  const config = CSV_CONFIG[type];
+  const filePath = path.join(folderPath, config.fileName(baseName));
 
   try {
     if (!existsSync(filePath)) {
-      const header = 'Tweet ID,href,Username,Date,Text Tweets,Replies,Reposts,Likes,Is Regular Post,Is Mention,Mention to,Is Quote,Quote to,Is Reply,Reply to\n';
-      await fs.writeFile(filePath, header, 'utf-8');
+      await fs.writeFile(filePath, config.header, 'utf-8');
     }
 
-    // lalu append baris baru
     await fs.appendFile(filePath, row + '\n', 'utf-8');
-    log("INFO", `✅ Rows added to: ${filePath}`)
-  } catch (err) {
-    log("ERROR", `❌ Failed to save CSV: ${err}`)
+    log("info", `✅ Row added to: ${filePath}`);
+  } catch (err: any) {
+    log('error', 'An error occurred while trying to save csv', { err: new Error(err.message) });
     throw err;
   }
 }
+
+// export async function saveToCSV(row: string, baseName: string, type: 'tweetData' | 'metaData') {
+//   const folderPath = path.resolve('reporter', globalVariables.scrapingReportsName);
+//   if (!existsSync(folderPath)) {
+//     mkdirSync(folderPath, { recursive: true });
+//   }
+
+//   let filePath = null;
+
+//   if (type === 'tweetData') filePath=path.join(folderPath, `${baseName}.csv`);
+//   else if (type === 'metaData') filePath=path.join(folderPath, `${baseName}_metadata.csv`);
+
+
+//   try {
+//     switch (type) {
+//       case 'tweetData':
+//         if (!existsSync(filePath)) {
+//           const header = 'Tweet ID,href,Username,Date,Text Tweets,Replies,Reposts,Likes,Is Regular Post,Is Mention,Mention to,Is Quote,Quote to,Is Reply,Reply to\n';
+//           await fs.writeFile(filePath, header, 'utf-8');
+//         }
+//         break;
+//       case 'metaData':
+//         if (!existsSync(filePath)) {
+//           const header = 'Username,Joined,Following,Follower,Verified\n';
+//           await fs.writeFile(filePath, header, 'utf-8');
+//         }
+//         break;
+//       default:
+//         throw new Error('Unknown conditions')
+
+//     }
+
+//     // lalu append baris baru
+//     await fs.appendFile(filePath, row + '\n', 'utf-8');
+//     log("info", `✅ Rows added to: ${filePath}`)
+//   } catch (err: any) {
+//     log('error', 'An error occurred while trying to save csv', { err: new Error(err.message) });
+//     throw err;
+//   }
+// }
 
 /**
  * Appends a JavaScript object to a JSON file.
@@ -92,7 +146,7 @@ export function cleanDirectory(directoryPath: string) {
         fs.rm(filePath, { recursive: true });
       }
     } else {
-      log("WARNING", `Warning: your path report "${directoryPath[i]}" does not exist!`)
+      log("warn", `Warning: your path report "${directoryPath[i]}" does not exist!`)
     }
   }
 }

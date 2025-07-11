@@ -7,7 +7,7 @@ posting: 'By.xpath => //div[@data-testid="tweetText"]'
 # replies: 'By.xpath => //button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")]'
 replies: 'By.xpath => //button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684")]'
 # reposts: 'By.xpath => //button[contains(@aria-label, "reposts. Repost")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")]'
-reposts: 'By.xpath => //button[contains(@aria-label, "reposts. Repost")]//span[contains(@class, "css-1jxf684")]'
+reposts: 'By.xpath => //button[@role="button" and @data-testid="retweet" and contains(@aria-label, "repost")]/div/div[2]/span/span/span'
 likes: 'By.xpath => //button[contains(@aria-label, "Likes") and contains(@aria-label, "Like")]//div[contains(@class, "css-175oi2r") and contains(@class, "r-xoduu5")]//following-sibling::div[@class="css-175oi2r r-xoduu5 r-1udh08x"]/span/span/span'
 
 repliesNew: 'By.xpath => (//button[contains(@aria-label, "Replies. Reply")]//span[contains(@class, "css-1jxf684") and contains(@class, "r-1ttztb7") and contains(@class, "r-qvutc0") and contains(@class, "r-poiln3") and contains(@class, "r-n6v787") and contains(@class, "r-1cwl3u0") and contains(@class, "r-1k6nrdp") and contains(@class, "r-n7gxbd")])[5]'
@@ -24,3 +24,11 @@ tweetQuetes: 'By.xpath => //div[@role="link"]//span[starts-with(text(), "@")]'
 
 # retryButton_sww: 'By.xpath => //button[@class="css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-3pj75a r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l"]'
 retryButton_sww: 'By.xpath => //div[.="Retry"]'
+
+
+# Profile
+profile_joined: 'By.xpath => //span[contains(text(), "Bergabung") or contains(text(), "Joined")]'
+profile_following: 'By.xpath => (//a[contains(@href, "/following") and .//span[text()="Following"]]/span/span)[1]'
+profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers")]/span[1]/span'
+profile_verified: 'By.xpath => //button[@aria-label="Provides details about verified accounts."]//*[name()="svg"]'
+profile_posts: 'By.xpath => //div[contains(text(), "posts") and not(.//*)]'

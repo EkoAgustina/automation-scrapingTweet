@@ -1,23 +1,47 @@
-import logger from '@wdio/logger';
+import pino from 'pino';
+
+const logger = pino({
+  transport: {
+    target: 'pino-pretty',
+    options: {
+      colorize: true,
+      translateTime: 'SYS:standard',
+      ignore: 'pid,hostname',
+    },
+  },
+  level: process.env.LOG_LEVEL || 'info',
+});
+
+type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'fatal';
 
 /**
- * Logs a message with the specified log level.
- * @param {string} level - The log level. Should be one of 'WARNING', 'INFO', or 'ERROR'.
+ * Logs a message using the specified log level.
+ *
+ * Utilizes Pino logger with optional structured context.
+ * Throws an error if an unsupported log level is used.
+ *
+ * @param {LogLevel} level - The severity level of the log ('info', 'warn', 'error', 'debug', 'fatal').
  * @param {string} message - The message to be logged.
- * @throws {Error} Throws an error if the specified log level is not recognized.
+ * @param {Record<string, unknown>} [context] - Optional contextual metadata to include in the log.
+ *
+ * @throws {Error} Will throw an error if the provided log level is not supported.
+ *
+ * @example
+ * log('info', 'Server started');
+ * log('error', 'Something went wrong', { userId: 123, action: 'login' });
  */
-export const log = (level: string, message: string) => {
-  switch (level) {
-    case 'WARNING':
-      logger('⚠️ SCRAPER').warn(message)
-      break;
-    case 'INFO':
-      logger('💡 SCRAPER').info(message)
-      break;
-    case 'ERROR':
-      logger('🚫 SCRAPER').error(message)
-      break;
-    default:
-      throw new Error('Unknown conditions')
+export const log = (
+  level: LogLevel,
+  message: string,
+  context?: Record<string, unknown>
+) => {
+  if (!logger[level]) {
+    throw new Error(`Unsupported log level: ${level}`);
   }
-}
+
+  if (context) {
+    logger[level](context, message);
+  } else {
+    logger[level](message);
+  }
+};

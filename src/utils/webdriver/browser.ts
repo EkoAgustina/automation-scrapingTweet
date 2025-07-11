@@ -17,23 +17,24 @@ export async function baseOpenBrowser(url: string): Promise<void> {
     if (!authToken || !ct0) {
       throw new Error('COOKIE_AUTH_TOKEN or COOKIE_CT0 has not been set in the environment variables.');
     }
-
-    await browser.url("https://x.com");
-    await setBrowserSize()
-    
-    await browser.setCookies([
-      { name: 'auth_token', value: authToken },
-      { name: 'ct0', value: ct0 }
-    ])
-
-    await browser.pause(1000);
-    await browser.refresh()
     await browser.url(url);
-    log('INFO', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
+    await setBrowserSize()
 
-    await browser.pause(3000)
+    if ((await browser.getCookies(['authToken'])).length === 0 && (await browser.getCookies(['ct0'])).length === 0) {
+      await browser.setCookies([
+        { name: 'auth_token', value: authToken },
+        { name: 'ct0', value: ct0 }
+      ])
+      await browser.pause(1000);
+      await browser.refresh();
+      await baseOpenBrowser(url);
+    }
+    await pageLoad(5);
+    log('info', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
+
+    await browser.pause(2000)
   } catch (err: any) {
-    log("ERROR", err.message)
+    log('error', 'An error occurred while initializing browser', { err: new Error(err.message) });
     throw err
   }
 }
@@ -64,7 +65,7 @@ export async function setBrowserSize(): Promise<void> {
       throw new Error(`browserName "${browserName}" not recognized!`);
     }
   } catch (err: any) {
-    log("ERROR", err.message);
+    log('error', 'An error occurred while trying to resize the browser window', { err: new Error(err.message) });
     throw err;
   }
 }
@@ -83,7 +84,7 @@ export async function takeScreenshot(name: string) {
     await pageLoad(5)
     await browser.saveScreenshot('./screenshot/' + name + '.png');
   } catch (err: any) {
-    log("ERROR", err.message)
+    log('error', 'An error occurred while trying to take a screenshot', { err: new Error(err.message) });
     throw err
   }
 }
@@ -100,7 +101,7 @@ export async function pageLoad(duration: number) {
       timeoutMsg: 'Page failed to load'
     });
   } catch (err: any) {
-    log("ERROR", err.message)
+    log('error', 'An error occurred while waiting for the page to fully load', { err: new Error(err.message) });
     throw err
   }
 }
@@ -120,7 +121,7 @@ export async function customGeolocation(customLatitude: any, customLongitude: an
       accuracy: 100
     });
   } catch (err: any) {
-    log("ERROR", err.message)
+    log('error', 'An error occurred while trying to set geolocation', { err: new Error(err.message) });
     throw err
   }
 }
@@ -133,7 +134,7 @@ export async function actionEnter(): Promise<void> {
   try {
     await browser.keys('Enter')
   } catch (err: any) {
-    log("ERROR", err.message)
+    log('error', 'An error occurred', { err: new Error(err.message) });
     throw err
   }
 }

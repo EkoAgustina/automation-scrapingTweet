@@ -14,12 +14,13 @@ import { takeScreenshot } from "../utils/webdriver/browser.ts";
  */
 export async function hookBeforeScenario(world: ITestCaseHookParameter) {
   const dateMatch = world.pickle.name.match(/\b(\d{1,2}) March 2025\b/);
+  globalVariables.scenarioName = world.pickle.name
 
   if (dateMatch) {
     const day = dateMatch[1].padStart(2, '0');
     globalVariables.scrapingReportsName = `tweet_${day}_march_2025`;
   } else {
-    log("WARNING", "No valid date found in scenario name.");
+    log("warn", "No valid date found in scenario name.");
   }
 }
 
@@ -44,9 +45,9 @@ export async function hooksAfterScenario(world: any, result: any): Promise<void>
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
 
-  log("INFO", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
-  log("INFO", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
-  log("INFO", `Reports: ${globalVariables.scrapingReportsName}.json ${globalVariables.scrapingReportsName}.csv`)
+  log("info", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
+  log("info", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
+  log("info", `Reports: ${globalVariables.scrapingReportsName}.json ${globalVariables.scrapingReportsName}.csv`)
   printExecutionSummary()
 
 

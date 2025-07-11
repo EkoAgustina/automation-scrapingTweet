@@ -3,9 +3,9 @@ import { actionClick } from '../../utils/webdriver/click.ts';
 import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../utils/webdriver/assertions.ts';
 import { swipeUpwithTime, swipeUpElDisplayed } from "../../utils/webdriver/swipeActions.ts";
 import { actionFill } from '../../utils/webdriver/fillInput.ts';
-import { runTweetScrapingLoops } from '../../scraper/tweetCollector.ts';
-import { actionEnter, baseOpenBrowser, pageLoad, takeScreenshot } from '../../utils/webdriver/browser.ts';
+import { actionEnter, baseOpenBrowser, takeScreenshot } from '../../utils/webdriver/browser.ts';
 import { log } from '../../utils/logger.ts';
+import { scraper } from '../../scraper/index.ts';
 
 /**
  * Step definition for the Cucumber step: Given User open "<page>".
@@ -16,10 +16,9 @@ import { log } from '../../utils/logger.ts';
 Given(/^User open "(.*)"$/, async (page: string) => {
     try {
         await baseOpenBrowser(page);
-        await pageLoad(5);
         // await swipeUpwithTime(1)
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -34,23 +33,24 @@ When(/^User click "(.*)"$/, async (locator) => {
     try {
         await actionClick(locator);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
 
-When(/^Users do scraping twitter data$/,async () => {
+When(/^Users do scraping twitter data$/, async () => {
     try {
         const loopCountStr = process.env.TWEETS_COUNTS_REQUEST;
         const loopCount = parseInt(loopCountStr || '', 10);
 
         if (isNaN(loopCount)) {
-        throw new Error("TWEETS_COUNTS_REQUEST must be a valid number.");
+            throw new Error("TWEETS_COUNTS_REQUEST must be a valid number.");
         }
 
-        await runTweetScrapingLoops(loopCount)
+        // await runTweetScrapingLoops(loopCount)
+        await scraper(loopCount)
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -66,7 +66,7 @@ Then(/^Element "(.*)" (is displayed|not displayed)$/, async (locator, condition)
     try {
         await elementDisplayed(locator, condition);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -83,7 +83,7 @@ Then(/^Element "(.*)" is (equal|not equal) with data "(.*)"$/, async (locator, c
     try {
         await equalData(condition, locator, testData);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -101,7 +101,7 @@ When(/^User swipe up until he finds element "(.*)"$/, async (locator) => {
             console.error("ga adaa")
         }
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -115,7 +115,7 @@ When(/^User swipe up until (.*) seconds$/, async (duration: number) => {
     try {
         await swipeUpwithTime(duration);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -129,7 +129,7 @@ Then(/^Title currently opened website is (equal|not equal) with "(.*)"$/, async 
     try {
         await titleEqual(condition, testData);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -143,7 +143,7 @@ Then(/^Currently opened website URL is (equal|not equal) with "(.*)"$/, async (c
     try {
         await urlEqual(condition, testData);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -156,7 +156,7 @@ Then(/^User take screenshot with file name "(.*)"$/, async (name) => {
     try {
         await takeScreenshot(name);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -170,7 +170,7 @@ Then(/^User fill "(.*)" with data "(.*)"$/, async (locator, test_data) => {
     try {
         await actionFill(locator, test_data);
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });
@@ -183,7 +183,7 @@ Then(/^User press enter$/, async () => {
     try {
         await actionEnter();
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred', { err: new Error(err.message) });
         throw err
     }
 });

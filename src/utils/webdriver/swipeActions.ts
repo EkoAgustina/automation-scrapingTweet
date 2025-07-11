@@ -18,21 +18,21 @@ export async function swipeUpElDisplayed(locator: string): Promise<string> {
 
         while (!await (await findElement(locator)).isDisplayed()) {
             await browser.scroll(coordinateX, coordinateY)
-            log("INFO", `Swipe attempts: ${attempts}`);
+            log("info", `Swipe attempts: ${attempts}`);
             await browser.pause(1000);
             attempts++
 
             if (attempts >= maxAttempts) {
-                log("ERROR", `${locator} not found, swipe up exceeded`)
+                log('warn', 'not found, swipe up exceeded', { err: locator});
                 return '404'
             }
         }
 
         // await scrollIntoView(locator)
-        log("INFO", `${locator} found after ${attempts} swipes`);
+        log("info", `${locator} found after ${attempts} swipes`);
         return '200'
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
         throw err
     }
 }
@@ -47,21 +47,21 @@ export async function swipeUpElDisplayedCustom(tweet: WebdriverIO.Element, locat
 
         while (!await elWaitForExistTweet(tweet, locator)) {
             await browser.scroll(coordinateX, coordinateY)
-            log("INFO", `Swipe attempts: ${attempts}`);
+            log("info", `Swipe attempts: ${attempts}`);
             await browser.pause(1000);
             attempts++
 
             if (attempts >= maxAttempts) {
-                log("ERROR", `${locator} not found, swipe up exceeded`)
+                log('warn', 'Element not found, swipe up exceeded', { err: locator});
                 return '404'
             }
         }
 
         // await scrollIntoView(locator)
-        log("INFO", `${locator} found after ${attempts} swipes`);
+        log("info", `${locator} found after ${attempts} swipes`);
         return '200'
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
         throw err
     }
 }
@@ -72,7 +72,7 @@ export async function swipeUpIntoView(locator: string): Promise<string> {
         (await findElement(locator)).scrollIntoView()
         return '200'
     } catch (err: any) {
-        log("ERROR", err.message)
+        log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
         throw err
     }
 }
