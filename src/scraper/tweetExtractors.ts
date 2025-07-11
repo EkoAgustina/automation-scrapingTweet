@@ -3,7 +3,7 @@ import { log } from "../utils/logger.ts";
 import { keyElement } from "../utils/mapper.ts";
 import { actionGetText, tweetGetText } from "../utils/webdriver/getText.ts";
 import { swipeUpElDisplayedCustom, swipeUpwithTime } from "../utils/webdriver/swipeActions.ts";
-import { checkDuplicateTweets, checkDuplicateUsernameProfile, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
+import { checkDuplicateTweets, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
 import globalVariables from "../../resources/globalVariable.ts";
 import { measureTime } from "../utils/timer.ts";
 import { elWaitForExist, findElement } from "../utils/webdriver/element.ts";
@@ -308,9 +308,9 @@ export async function fetchProfileElementsData() {
   }
 }
 
-export async function extractProfileDataAtIndex(username: string) {
+export async function extractProfileDataAtIndex() {
   try {
-    if (checkDuplicateUsernameProfile(username) === 'Username already exists') return null;
+    // if (checkDuplicateUsernameProfile(username) === 'Username already exists') return null;
     const { postsCount, joined, following, follower, verified } = await measureTime("getTweetStats", () => fetchProfileElementsData())
     const objProfile = {
       postsCount, joined, following, follower, verified

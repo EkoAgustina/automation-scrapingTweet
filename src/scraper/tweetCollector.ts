@@ -3,7 +3,7 @@ import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
 import { swipeUpElDisplayed, swipeUpwithTime } from '../utils/webdriver/swipeActions.ts';
 import globalVariables from "../../resources/globalVariable.ts";
-import { checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache } from "./tweetUtils.ts";
+import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
 import { pageLoad } from "../utils/webdriver/browser.ts";
 
@@ -97,16 +97,12 @@ export async function runScrapingLoopsProfilesLoops() {
     const loadUsername: any[] = tweetCache.map(tweet => tweet.username);
     const mainWindow = await browser.getWindowHandle();
     for (const username of loadUsername) {
+      if (checkDuplicateUsernameProfile(username) === 'Username already exists') continue;
       await browser.newWindow(`https://x.com/${username}`);
       await pageLoad(5);
       await expect(browser).toHaveTitle(expect.stringContaining(username))
-      const loadProfileData = await extractProfileDataAtIndex(username)
-      // if (!loadProfileData) continue;
-      if (!loadProfileData) {
-    await browser.closeWindow();
-    await browser.switchToWindow(mainWindow);
-    continue;
-  }
+      const loadProfileData = await extractProfileDataAtIndex()
+      if (!loadProfileData) continue;
       const profileData = {
         username,
         ...loadProfileData
