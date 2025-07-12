@@ -1,6 +1,6 @@
 # CUCUMBER TAGS
-CUCUMBER_TAGS='@scTwentyOne'
-TWEETS_COUNT=5
+CUCUMBER_TAGS='@scTwentyFive or @scTwentyFour or @scTwentyThree or @scTwentyTwo'
+TWEETS_COUNT=1000
 
 # Host name
 DOCKER_HOSTNAME=192.168.0.107:4444
