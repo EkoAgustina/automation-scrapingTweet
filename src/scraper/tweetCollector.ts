@@ -48,7 +48,7 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
         const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 4 === 0) await swipeUpwithTime(1)
-        if (i === indexArticle) await swipeUpwithTime(1)
+        // if (i === indexArticle) await swipeUpwithTime(1)
 
         const tweetData = await extractTweetDataAtIndex(i);
 
