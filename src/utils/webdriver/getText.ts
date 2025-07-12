@@ -1,5 +1,6 @@
 import { log } from "../logger.ts";
 import { elWaitForExistTweet, findElement } from "./element.ts";
+import { swipeUpElDisplayedCustom } from "./swipeActions.ts";
 
 
 
@@ -53,4 +54,11 @@ export async function tweetGetText(tweet: WebdriverIO.Element, locator: string) 
     log('error', 'An error occurred while trying to get text from object tweet', { err: new Error(err.message) });
     throw err
   }
+}
+
+export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: string, errorMsg: string): Promise<string> {
+  const status = await swipeUpElDisplayedCustom(tweet, selector);
+  if (status !== '200') throw new Error(errorMsg);
+  const text = await tweetGetText(tweet, selector);
+  return text?.trim() || '';
 }

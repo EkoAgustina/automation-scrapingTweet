@@ -1,7 +1,7 @@
 import { convertDate } from "../utils/dateFormatter.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from "../utils/mapper.ts";
-import { actionGetText, tweetGetText } from "../utils/webdriver/getText.ts";
+import { actionGetText, ensureAndGetText } from "../utils/webdriver/getText.ts";
 import { swipeUpElDisplayedCustom, swipeUpwithTime } from "../utils/webdriver/swipeActions.ts";
 import { checkDuplicateTweets, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
 import globalVariables from "../../resources/globalVariable.ts";
@@ -120,19 +120,35 @@ export async function getTweetId(tweet: WebdriverIO.Element) {
  * @returns {Promise<{ username: string; textTweet: string; date: string }>} - An object containing the tweet’s user, text, and formatted date.
  * @throws {Error} - Throws if the username element cannot be found or loaded.
  */
+// async function getTweetTextData(tweet: WebdriverIO.Element) {
+//   const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:username")}`)
+//   if (swipeCheckUsername !== '200') throw new Error("Tweet tidak ditemukan");
+//   const swipeTextTweetEl = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:posting")}`)
+//   if (swipeTextTweetEl !== '200') throw new Error("Text tweet tidak ditemukan");
+//   const swipeTimeEl = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:postingTime")}`)
+//   if (swipeTimeEl !== '200') throw new Error("Date tidak ditemukan");
+
+//   const usernameEl = (await tweetGetText(tweet, `.${keyElement("tweets:username")}`))
+//   const textTweetEl = await tweetGetText(tweet, `.${keyElement("tweets:posting")}`)
+//   const timeEl = await tweetGetText(tweet, `.${keyElement("tweets:postingTime")}`)
+
+//   const username = usernameEl ? usernameEl.trim() : '';
+//   const textTweet = textTweetEl ? textTweetEl.trim() : '';
+//   const tgl = timeEl ? timeEl.trim() : '';
+//   const date = convertDate(tgl)
+
+//   return { username, textTweet, date };
+// }
 async function getTweetTextData(tweet: WebdriverIO.Element) {
+  const usernameSelector = `.${keyElement("tweets:username")}`;
+  const postingSelector = `.${keyElement("tweets:posting")}`;
+  const timeSelector = `.${keyElement("tweets:postingTime")}`;
 
-  const usernameEl = (await tweetGetText(tweet, `.${keyElement("tweets:username")}`))
-  const textTweetEl = await tweetGetText(tweet, `.${keyElement("tweets:posting")}`)
-  const timeEl = await tweetGetText(tweet, `.${keyElement("tweets:postingTime")}`)
+  const username = await ensureAndGetText(tweet, usernameSelector, "Tweet not found");
+  const textTweet = await ensureAndGetText(tweet, postingSelector, "Text tweet not found");
+  const rawDate = await ensureAndGetText(tweet, timeSelector, "Date not found");
 
-  const swipeCheckUsername = await swipeUpElDisplayedCustom(tweet, `.${keyElement("tweets:username")}`)
-  if (swipeCheckUsername !== '200') throw new Error("Tweet tidak ditemukan");
-
-  const username = usernameEl ? usernameEl.trim() : '';
-  const textTweet = textTweetEl ? textTweetEl.trim() : '';
-  const tgl = timeEl ? timeEl.trim() : '';
-  const date = convertDate(tgl)
+  const date = convertDate(rawDate);
 
   return { username, textTweet, date };
 }
