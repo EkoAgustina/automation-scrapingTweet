@@ -2,6 +2,7 @@ import type { Options } from '@wdio/types'
 import { specConfig, allureConfig } from "./report.conf.ts"
 import { log } from '../src/utils/logger.ts';
 import { hookBeforeScenario, hooksAfterScenario } from '../src/hooks/driverHooks.ts';
+import { WebDriverLogTypes } from '@wdio/types/build/Options';
 export const config: Options.Testrunner = {
     //
     // ====================
@@ -71,7 +72,7 @@ export const config: Options.Testrunner = {
     // Define all options that are relevant for the WebdriverIO instance here
     //
     // Level of logging verbosity: trace | debug | info | warn | error | silent
-    logLevel: 'error',
+    logLevel: (process.env.WDIO_LOG_LEVEL as WebDriverLogTypes) || 'error',
     //
     // Set specific log levels per logger
     // loggers:

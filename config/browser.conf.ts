@@ -10,7 +10,7 @@ if (globalVariables.os === 'linux') {
             maxInstances: 6,
             browserName: 'chrome',
             'goog:chromeOptions': {
-                        args: ['--headless', 
+                        args: ['--headless=new', 
                             '--no-sandbox',
                             '--incognito', 
                             '--disable-blink-features=AutomationControlled',
@@ -37,7 +37,7 @@ if (globalVariables.os === 'linux') {
                     maxInstances: 5,
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--headless', 
+                        args: ['--headless=new', 
                             '--no-sandbox',
                             '--incognito', 
                             '--disable-blink-features=AutomationControlled',
@@ -75,7 +75,7 @@ if (globalVariables.os === 'linux') {
                     maxInstances: 6,
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--headless', 
+                        args: ['--headless=new', 
                             '--no-sandbox', 
                             '--incognito', 
                             '--disable-blink-features=AutomationControlled',

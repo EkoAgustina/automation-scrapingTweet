@@ -1,18 +1,26 @@
 import pino from 'pino';
+import globalVariables from '../../resources/globalVariable.ts';
 
-const logger = pino({
-  transport: {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-    },
-  },
-  level: process.env.LOG_LEVEL || 'info',
-});
-
+const isDev = globalVariables.os === 'docker';
 type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'fatal';
+
+const logger = pino(
+  isDev
+    ? {
+        transport: {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+          },
+        },
+        level: process.env.LOG_LEVEL || 'info',
+      }
+    : {
+        level: process.env.LOG_LEVEL || 'info',
+      }
+);
 
 /**
  * Logs a message using the specified log level.
