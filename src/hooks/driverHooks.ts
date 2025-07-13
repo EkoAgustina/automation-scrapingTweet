@@ -28,11 +28,22 @@ export async function hookBeforeScenario(world: ITestCaseHookParameter) {
   keepAliveInterval = setInterval(async () => {
     try {
       await browser.getTitle();
-      log("info","Keep-alive ping sent")
-    } catch (e:any) {
+      log("info", "Keep-alive ping sent")
+    } catch (e: any) {
       log("warn", `Keep-alive failed: ${e.message}`)
     }
   }, 5 * 60 * 1000);
+
+  try {
+    await browser.cdp('Network', 'enable');
+    await browser.cdp('Network', 'setBlockedURLs', {
+      urls: ['*.jpg', '*.png', '*.gif']
+    });
+    log("info", "CDP setBlockedURLs executed successfully")
+  } catch (err: any) {
+    log("error", `An error occurred when set CDP setBlockedURLs`, { err: new Error(err.message) })
+    throw err
+  }
 }
 
 
@@ -59,9 +70,9 @@ export async function hooksAfterScenario(world: any, result: any): Promise<void>
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
   const userAgent = await browser.execute(() => {
-            return navigator.userAgent;
-        });
-  log ("info", userAgent)
+    return navigator.userAgent;
+  });
+  log("info", userAgent)
 
   log("info", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
   log("info", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
