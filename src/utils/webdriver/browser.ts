@@ -33,6 +33,11 @@ export async function baseOpenBrowser(url: string): Promise<void> {
     log('info', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
 
     await browser.pause(2000)
+    await browser.cdp('Network', 'enable');
+    await browser.cdp('Network', 'setBlockedURLs', {
+      urls: ['*.jpg', '*.png', '*.gif']
+    });
+    log("info", "CDP setBlockedURLs executed successfully")
   } catch (err: any) {
     log('error', 'An error occurred while initializing browser', { err: new Error(err.message) });
     throw err
