@@ -113,7 +113,7 @@ export const config: Options.Testrunner = {
     // Services take over a specific job you don't want to take care of. They enhance
     // your test setup with almost no effort. Unlike plugins, they don't add new
     // commands. Instead, they hook themselves up into the test process.
-    services: ['devtools'],
+    // services: [],
     //
     // Framework you want to run your specs with.
     // The following are supported: Mocha, Jasmine, and Cucumber
@@ -224,8 +224,18 @@ export const config: Options.Testrunner = {
      * @param {Array.<String>} specs        List of spec file paths that are to be run
      * @param {object}         browser      instance of created browser/device session
      */
-    // before: function (capabilities, specs) {
-    // },
+    before: async function () {
+        try {
+    await browser.cdp('Network', 'enable');
+    await browser.cdp('Network', 'setBlockedURLs', {
+      urls: ['*.jpg', '*.png', '*.gif']
+    });
+    log("info", "CDP setBlockedURLs executed successfully")
+  } catch (err: any) {
+    log("error", `An error occurred when set CDP setBlockedURLs`, { err: new Error(err.message) })
+    throw err
+  }
+    },
     /**
      * Runs before a WebdriverIO command gets executed.
      * @param {string} commandName hook command name

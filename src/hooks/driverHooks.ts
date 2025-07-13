@@ -34,16 +34,16 @@ export async function hookBeforeScenario(world: ITestCaseHookParameter) {
     }
   }, 5 * 60 * 1000);
 
-  try {
-    await browser.cdp('Network', 'enable');
-    await browser.cdp('Network', 'setBlockedURLs', {
-      urls: ['*.jpg', '*.png', '*.gif']
-    });
-    log("info", "CDP setBlockedURLs executed successfully")
-  } catch (err: any) {
-    log("error", `An error occurred when set CDP setBlockedURLs`, { err: new Error(err.message) })
-    throw err
-  }
+  // try {
+  //   await browser.cdp('Network', 'enable');
+  //   await browser.cdp('Network', 'setBlockedURLs', {
+  //     urls: ['*.jpg', '*.png', '*.gif']
+  //   });
+  //   log("info", "CDP setBlockedURLs executed successfully")
+  // } catch (err: any) {
+  //   log("error", `An error occurred when set CDP setBlockedURLs`, { err: new Error(err.message) })
+  //   throw err
+  // }
 }
 
 

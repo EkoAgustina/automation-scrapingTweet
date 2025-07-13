@@ -27,7 +27,7 @@ if (globalVariables.os === 'linux') {
         }
     ];
 
-    config.services = [];
+    config.services = ['devtools'];
 } else {
     const browserName = process.env.BROWSER_NAME;
     switch (browserName) {
