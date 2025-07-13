@@ -3,7 +3,7 @@ import globalVariables from "../../resources/globalVariable.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from '../utils/mapper.ts';
 import { elWaitForExist, findElement } from '../utils/webdriver/element.ts';
-import { pageLoad } from '../utils/webdriver/browser.ts';
+import { pageLoad, sleep } from '../utils/webdriver/browser.ts';
 import { actionClick } from '../utils/webdriver/click.ts';
 import path from 'path';
 
@@ -161,21 +161,25 @@ export async function handleSww() {
       while (await (await findElement(retryButton)).isDisplayed()) {
         if (attempts) {
           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          await browser.pause(180000); // three minutes
+          // await browser.pause(180000); // three minutes
+          sleep(180)
         } else if (attempts === 4) {
           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          await browser.pause(300000); // five minutes
+          
+          sleep(300)
         } else if (attempts === 5) {
           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          await browser.pause(480000); // eight minutes
+          // eight minutes
+          sleep(480)
         } else if (attempts === 6) {
           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          await browser.pause(600000);
+          // await browser.pause(600);
+          sleep(600)
         }
         await browser.pause(2000);
         await pageLoad(5)
         await actionClick(retryButton)
-        await browser.pause(4000);
+        await browser.pause(2000);
         attempts++
 
         if (attempts >= maxAttempts) {

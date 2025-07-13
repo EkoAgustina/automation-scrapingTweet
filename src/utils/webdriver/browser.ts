@@ -63,7 +63,7 @@ export async function setBrowserSize(): Promise<void> {
     const browserName = env.BROWSER_NAME?.toLowerCase();
 
     if (globalVariables.os === 'linux' || browserName === 'docker') {
-      await browser.setWindowSize(1470, 854);
+      await browser.maximizeWindow();
     } else if (browserName === 'chrome' || browserName === 'headless') {
       await browser.maximizeWindow();
     } else {
@@ -142,4 +142,16 @@ export async function actionEnter(): Promise<void> {
     log('error', 'An error occurred', { err: new Error(err.message) });
     throw err
   }
+}
+
+/**
+ * Pause the execution for a specified duration.
+ * @param {number} duration - The duration to sleep in seconds.
+ */
+export function sleep (duration:number) {
+    const date = Date.now();
+    let currentDate = null;
+    do {
+      currentDate = Date.now();
+    } while (currentDate - date < duration * 1000);
 }

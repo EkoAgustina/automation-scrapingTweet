@@ -30,6 +30,7 @@ if (globalVariables.os === 'linux') {
     config.services = ['devtools'];
 } else {
     const browserName = process.env.BROWSER_NAME;
+    config.services = ['devtools'];
     switch (browserName) {
         case 'headless':
             config.capabilities = [
