@@ -13,7 +13,6 @@ if (globalVariables.os === 'linux') {
                         args: ['--headless=new', 
                             '--no-sandbox',
                             '--incognito', 
-                            '--disable-blink-features=AutomationControlled',
                             '--disable-gpu',
                             'enable-automation',
                             '--disable-gpu-compositing', 

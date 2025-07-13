@@ -1,6 +1,6 @@
 # CUCUMBER TAGS
-CUCUMBER_TAGS='@scEighteen'
-TWEETS_COUNT=120
+CUCUMBER_TAGS='@scEighteen or @scNineTeen or @scTwenty'
+TWEETS_COUNT=1000
 SET_WDIO_LOG_LEVEL=error
 
 # Host name

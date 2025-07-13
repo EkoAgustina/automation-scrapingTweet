@@ -10,21 +10,54 @@ import { swipeUpElDisplayedCustom } from "./swipeActions.ts";
  * @returns {Promise<string>} A promise that resolves with the text content of the element.
  * @throws {Error} If the text content is empty or null.
  */
+// export async function actionGetText(locator: string): Promise<string> {
+//   try {
+//     const textValue = await (await findElement(locator)).getText()
+
+//     if (textValue === '' || textValue === null) {
+//       throw new Error(`Cannot get text on element '${locator}'`);
+//     } else {
+//       log("info", textValue)
+//       return textValue;
+//     }
+//   } catch (err: any) {
+//     log('error', 'An error occurred while trying to get text from object tweet', { err: new Error(err.message) });
+//     throw err
+//   }
+// }
 export async function actionGetText(locator: string): Promise<string> {
   try {
-    const textValue = await (await findElement(locator)).getText()
+    let attempts = 0;
+    let textValue: string | null = null;
 
-    if (textValue === '' || textValue === null) {
-      throw new Error(`Cannot get text on element '${locator}'`);
-    } else {
-      log("info", textValue)
-      return textValue;
+    while (attempts < 5) {
+      const element = await findElement(locator);
+      textValue = await element.getText();
+
+      if (textValue && textValue.trim() !== '') {
+        log("info", `✅ Retrieved text: "${textValue}"`);
+        return textValue;
+      }
+
+      log("warn", `⚠️ Empty text attempt ${attempts + 1} for locator: ${locator}`);
+      await browser.pause(1000);
+
+      if (attempts === 3) {
+        log("warn", `♻️ Attempt ${attempts + 1}: refreshing page for locator: ${locator}`);
+        await browser.refresh();
+        log("info", `🔄 Page refreshed after ${attempts + 1} failed attempts`);
+      }
+
+      attempts++;
     }
+
+    throw new Error(`❌ Failed to get non-empty text from element '${locator}' after ${attempts} attempts`);
   } catch (err: any) {
     log('error', 'An error occurred while trying to get text from object tweet', { err: new Error(err.message) });
-    return ""
+    throw err;
   }
 }
+
 
 /**
  * Attempts to retrieve the text content of a child element within a tweet element.
