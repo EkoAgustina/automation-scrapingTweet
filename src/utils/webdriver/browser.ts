@@ -37,6 +37,17 @@ export async function baseOpenBrowser(url: string): Promise<void> {
     await browser.cdp('Network', 'setBlockedURLs', {
       urls: ['*.jpg', '*.png', '*.gif']
     });
+    await browser.execute(() => {
+  const style = document.createElement('style');
+  style.innerHTML = `
+    * {
+      transition: none !important;
+      animation: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+});
+
     log("info", "CDP setBlockedURLs executed successfully")
   } catch (err: any) {
     log('error', 'An error occurred while initializing browser', { err: new Error(err.message) });
