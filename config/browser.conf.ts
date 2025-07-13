@@ -15,10 +15,13 @@ if (globalVariables.os === 'linux') {
                             '--incognito', 
                             '--disable-blink-features=AutomationControlled',
                             '--disable-gpu',
+                            'enable-automation',
                             '--disable-gpu-compositing', 
+                            'enable-automation',
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
                             '--disable-cache', 
+                            '--disable-background-networking',
                             // '--remote-debugging-pipe',
                             `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
             },
@@ -40,13 +43,14 @@ if (globalVariables.os === 'linux') {
                     'goog:chromeOptions': {
                         args: ['--headless=new', 
                             '--no-sandbox',
-                            '--incognito', 
-                            '--disable-blink-features=AutomationControlled',
+                            '--incognito',
+                            'enable-automation',
                             '--disable-gpu',
                             '--disable-gpu-compositing', 
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
                             '--disable-cache', 
+                            '--disable-background-networking',
                             `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
                     },
                     acceptInsecureCerts: true,
@@ -59,7 +63,7 @@ if (globalVariables.os === 'linux') {
                 {
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--disable-cache','--disable-blink-features=AutomationControlled','--incognito']
+                        args: ['--disable-cache','enable-automation','--incognito']
                     },
                     maxInstances: 5,
                     acceptInsecureCerts: true,

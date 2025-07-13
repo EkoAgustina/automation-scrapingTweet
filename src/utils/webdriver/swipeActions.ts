@@ -81,13 +81,17 @@ export async function swipeUpIntoView(locator: string): Promise<string> {
  * @param {number} time - The duration of the swipe action, specified in the number of repetitions.
  */
 export async function swipeUpwithTime(duration: number) {
-    const windowSize = await browser.getWindowSize();
-    const coordinateX = Math.round(windowSize.width * 0.2)
-    const coordinateY = Math.round(windowSize.height * 1.70)
+    // const windowSize = await browser.getWindowSize();
+    // const coordinateX = Math.round(windowSize.width * 0.2)
+    // const coordinateY = Math.round(windowSize.height * 1.70)
 
 
     for (let i = 0; i < duration; i++) {
-        await browser.scroll(coordinateX, coordinateY);
+        // await browser.scroll(coordinateX, coordinateY);
+        await browser.execute(() => {
+  window.scrollBy(0, window.innerHeight * 0.9);
+});
+
         await browser.pause(1000);
     }
 }

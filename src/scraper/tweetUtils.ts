@@ -3,7 +3,7 @@ import globalVariables from "../../resources/globalVariable.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from '../utils/mapper.ts';
 import { elWaitForExist, findElement } from '../utils/webdriver/element.ts';
-import { pageLoad, sleep } from '../utils/webdriver/browser.ts';
+import { pageLoad } from '../utils/webdriver/browser.ts';
 import { actionClick } from '../utils/webdriver/click.ts';
 import path from 'path';
 
@@ -66,11 +66,11 @@ export function saveProfileTweetCache() {
   const dirPath = path.resolve('reporter', globalVariables.scrapingReportsName);
   const filePath = path.join(dirPath, `${globalVariables.scrapingReportsName}_metadata.json`);
   try {
-     if (!fs.existsSync(dirPath)) {
+    if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
 
-    fs.writeFileSync(filePath,JSON.stringify(tweetProfilieCache, null, 2));
+    fs.writeFileSync(filePath, JSON.stringify(tweetProfilieCache, null, 2));
     log("info", "✅ Profile tweet cache saved to file");
   } catch (err: any) {
     log('error', 'Failed to save profile tweet cache', { err: new Error(err.message) });
@@ -152,40 +152,66 @@ export function extractUsername(tweet: string): string[] {
  *
  * @throws {Error} - Throws an error when the maximum retry attempts are reached.
  */
+// export async function handleSww() {
+//   const retryButton = keyElement("tweets:retryButton_sww")
+//   let attempts = 0;
+//   const maxAttempts = 7;
+//   try {
+//     if (await elWaitForExist(retryButton, 2500)) {
+//       while (await (await findElement(retryButton)).isDisplayed()) {
+//         if (attempts) {
+//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
+//           await browser.pause(180000); // three minutes
+//         } else if (attempts === 4) {
+//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
+//           await browser.pause(300000); // three minutes
+//           sleep(300)
+//         } else if (attempts === 5) {
+//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
+//           await browser.pause(480000);
+//         } else if (attempts === 6) {
+//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
+//           await browser.pause(600000);
+//         }
+//         await browser.pause(2000);
+//         await pageLoad(5)
+//         await actionClick(retryButton)
+//         await browser.pause(2000);
+//         attempts++
+
+//         if (attempts >= maxAttempts) {
+//           throw new Error(`Attempts exhausted! It has been tried ${attempts} times, but the 'sww retry' keeps appearing.`)
+//         }
+//       }
+//     }
+//   } catch (err: any) {
+//     log('error', 'An error occurred while trying to handle sww', { err: new Error(err.message) });
+//     throw err
+//   }
+// }
 export async function handleSww() {
   const retryButton = keyElement("tweets:retryButton_sww")
   let attempts = 0;
-  const maxAttempts = 7;
+  const maxAttempts = 5;
   try {
-    if (await elWaitForExist(retryButton, 2500)) {
-      while (await (await findElement(retryButton)).isDisplayed()) {
-        if (attempts) {
-          log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          // await browser.pause(180000); // three minutes
-          sleep(180)
-        } else if (attempts === 4) {
-          log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          
-          sleep(300)
-        } else if (attempts === 5) {
-          log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          // eight minutes
-          sleep(480)
-        } else if (attempts === 6) {
-          log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-          // await browser.pause(600);
-          sleep(600)
-        }
-        await browser.pause(2000);
-        await pageLoad(5)
-        await actionClick(retryButton)
-        await browser.pause(2000);
-        attempts++
+    if (await elWaitForExist(retryButton, 1500)) {
+      // }
+      const waitTimes = [180000, 180000, 300000, 480000, 600000]; // Total 27 menit!
 
+      for (const waitTime of waitTimes) {
+        if (await (await findElement(retryButton)).isDisplayed()) {
+          log("warn", `Retry button still visible. Waiting for ${waitTime / 60000} minutes...`);
+          await browser.pause(waitTime);
+          await actionClick(retryButton);
+          await browser.pause(2000);
+          await pageLoad(5);
+          attempts++;
+        }
         if (attempts >= maxAttempts) {
-          throw new Error(`Attempts exhausted! It has been tried ${attempts} times, but the 'sww retry' keeps appearing.`)
+          throw new Error(`Attempts exhausted after ${attempts} tries.`);
         }
       }
+
     }
   } catch (err: any) {
     log('error', 'An error occurred while trying to handle sww', { err: new Error(err.message) });
