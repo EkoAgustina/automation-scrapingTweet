@@ -47,7 +47,7 @@ export async function swipeUpByLastIndex(indexArticle: number) {
 
     if (tweetCache.length >= 20) {
       const divider = (tweetCache.length / indexArticle)
-      const reducer = (60 / 100) * Math.ceil(divider);
+      const reducer = (50 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
@@ -286,7 +286,7 @@ export async function extractTweetDataAtIndex(index: number): Promise<TweetData 
 }
 
 async function checkIfVerified(verifiedEl: string): Promise<boolean> {
-  if (!await elWaitForExist(verifiedEl)) return false;
+  if (!await elWaitForExist(verifiedEl,3500)) return false;
   const el = await findElement(verifiedEl);
   return await el.isDisplayed();
 }

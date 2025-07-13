@@ -34,24 +34,33 @@ export async function baseOpenBrowser(url: string): Promise<void> {
     log('info', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
 
     await browser.pause(2000)
+    await devToolsHandler()
+  } catch (err: any) {
+    log('error', 'An error occurred while initializing browser', { err: new Error(err.message) });
+    throw err
+  }
+}
+
+export async function devToolsHandler() {
+  try {
     await browser.cdp('Network', 'enable');
     await browser.cdp('Network', 'setBlockedURLs', {
       urls: ['*.jpg', '*.png', '*.gif']
     });
     await browser.execute(() => {
-  const style = document.createElement('style');
-  style.innerHTML = `
+      const style = document.createElement('style');
+      style.innerHTML = `
     * {
       transition: none !important;
       animation: none !important;
     }
   `;
-  document.head.appendChild(style);
-});
+      document.head.appendChild(style);
+    });
 
     log("info", "CDP setBlockedURLs executed successfully")
   } catch (err: any) {
-    log('error', 'An error occurred while initializing browser', { err: new Error(err.message) });
+    log('error', 'An error occurred', { err: new Error(err.message) });
     throw err
   }
 }
@@ -76,7 +85,7 @@ export async function setBrowserSize(): Promise<void> {
 
     if (globalVariables.os === 'linux' || browserName === 'docker') {
       // await browser.maximizeWindow();
-       await browser.setWindowSize(1470, 854);
+      await browser.setWindowSize(1470, 854);
     } else if (browserName === 'chrome' || browserName === 'headless') {
       await browser.maximizeWindow();
     } else {
@@ -161,10 +170,10 @@ export async function actionEnter(): Promise<void> {
  * Pause the execution for a specified duration.
  * @param {number} duration - The duration to sleep in seconds.
  */
-export function sleep (duration:number) {
-    const date = Date.now();
-    let currentDate = null;
-    do {
-      currentDate = Date.now();
-    } while (currentDate - date < duration * 1000);
+export function sleep(duration: number) {
+  const date = Date.now();
+  let currentDate = null;
+  do {
+    currentDate = Date.now();
+  } while (currentDate - date < duration * 1000);
 }

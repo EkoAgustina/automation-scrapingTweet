@@ -1,11 +1,11 @@
 import { keyElement } from "../utils/mapper.ts";
 import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
-import { swipeUpElDisplayed, swipeUpwithTime } from '../utils/webdriver/swipeActions.ts';
+import { smartScrollUntilNewTweetFound, swipeUpElDisplayed, swipeUpwithTime } from '../utils/webdriver/swipeActions.ts';
 import globalVariables from "../../resources/globalVariable.ts";
 import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
-import { pageLoad } from "../utils/webdriver/browser.ts";
+import { baseOpenBrowser, pageLoad } from "../utils/webdriver/browser.ts";
 
 let extractTweetCallCount = 0;
 const indexArticle = 11;
@@ -48,7 +48,7 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
         const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 3 === 0) await swipeUpwithTime(1)
-        if (i === indexArticle) await swipeUpwithTime(1)
+        if (i === indexArticle) await smartScrollUntilNewTweetFound()
 
         const tweetData = await extractTweetDataAtIndex(i);
 
@@ -95,12 +95,26 @@ export async function runScrapingLoopsProfilesLoops() {
   try {
     loadProfileTweetCache()
     const loadUsername: any[] = tweetCache.map(tweet => tweet.username);
-    const mainWindow = await browser.getWindowHandle();
-    for (const username of loadUsername) {
+    for (const [index, username] of loadUsername.entries()) {
       if (checkDuplicateUsernameProfile(username) === 'Username already exists') continue;
-      await browser.newWindow(`https://x.com/${username}`);
+
+      // Refresh session setiap 20 kali
+      if (index > 0 && index % 20 === 0) {
+        log("info", "🔄 Refreshing browser session to avoid timeout/memory issues...");
+        await browser.reloadSession();
+        await browser.pause(2000); // beri waktu sedikit
+      }
+
+      await baseOpenBrowser(`https://x.com/${username}`)
+      await browser.pause(1000);
       await pageLoad(5);
-      await expect(browser).toHaveTitle(expect.stringContaining(username))
+
+       const title = await browser.getTitle();
+      if (!title.includes(username)) {
+        log("warn", `⚠️ Unexpected title "${title}" for ${username}. Skipping...`);
+        continue;
+      }
+
       const loadProfileData = await extractProfileDataAtIndex()
       if (!loadProfileData) continue;
       const profileData = {
@@ -125,9 +139,7 @@ export async function runScrapingLoopsProfilesLoops() {
       tweetProfilieCache.push(profileObj)
       saveProfileTweetCache()
       await saveToCSV(csvRow, globalVariables.scrapingReportsName, 'metaData');
-      await browser.closeWindow(); 
       await browser.pause(500);
-      await browser.switchToWindow(mainWindow);
     }
   } catch (err: any) {
     log('error', 'An error occurred', { err: new Error(err.message) });

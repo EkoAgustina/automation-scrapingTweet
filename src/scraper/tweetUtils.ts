@@ -94,10 +94,10 @@ export function checkIfTweetLimitReached(maxLength: number): boolean {
   globalVariables.desiredTweets = maxLength;
 
   if (currentCount >= maxLength) {
-    log("info", `[${globalVariables.scenarioName}] Tweets collected have reached ${maxLength}`);
+    log("info", `[${globalVariables.scenarioName}] ✅ Tweets collected have reached ${maxLength}`);
     return true;
   } else {
-    log("info", `[${globalVariables.scenarioName}] Tweets collected: ${currentCount}/${maxLength}`);
+    log("info", `[${globalVariables.scenarioName}] ✅ Tweets collected: ${currentCount}/${maxLength}`);
     return false;
   }
 }
