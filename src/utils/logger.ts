@@ -1,11 +1,11 @@
 import pino from 'pino';
 import globalVariables from '../../resources/globalVariable.ts';
 
-const isDev = globalVariables.os === 'docker';
+const isDev = globalVariables.os === 'linux';
 type LogLevel = 'info' | 'warn' | 'error' | 'debug' | 'fatal';
 
 const logger = pino(
-  isDev
+  !isDev
     ? {
         transport: {
           target: 'pino-pretty',

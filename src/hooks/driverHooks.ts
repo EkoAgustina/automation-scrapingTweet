@@ -58,6 +58,10 @@ export async function hooksAfterScenario(world: any, result: any): Promise<void>
   }
   properties.set('Host', allureHostUrl() || 'Unknown');
   properties.save(propertiesPath);
+  const userAgent = await browser.execute(() => {
+            return navigator.userAgent;
+        });
+  log ("info", userAgent)
 
   log("info", `Tweets collected: ${globalVariables.tweetsCount}/${globalVariables.desiredTweets}`)
   log("info", `Count of tweets checked: ${globalVariables.tweetCountCheck}`)
