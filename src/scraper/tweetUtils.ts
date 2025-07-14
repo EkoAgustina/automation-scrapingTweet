@@ -228,7 +228,7 @@ export async function waitForProfileTitle(username: string): Promise<boolean> {
   try {
     for (const waitTime of waitTimes) {
       await browser.reloadSession();
-      await baseOpenBrowser(`https://x.com/${user}`);
+      await baseOpenBrowser(`https://x.com/${user}`,false);
       await browser.pause(2000)
       await pageLoad(5);
 

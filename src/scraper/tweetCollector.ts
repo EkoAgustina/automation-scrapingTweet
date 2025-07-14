@@ -104,7 +104,7 @@ export async function runScrapingLoopsProfilesLoops() {
         await browser.pause(2000); // beri waktu sedikit
       }
 
-      await baseOpenBrowser(`https://x.com/${username}`)
+      await baseOpenBrowser(`https://x.com/${username}`, false)
       await browser.pause(1000);
       await pageLoad(5);
       await browser.pause(1000);

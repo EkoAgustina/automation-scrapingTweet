@@ -9,7 +9,7 @@ import { existsSync, mkdirSync } from 'node:fs';
  * @param {string} url - The URL to navigate to.
  * @returns {Promise<void>} A promise that resolves when the browser is opened and the URL is loaded.
  */
-export async function baseOpenBrowser(url: string): Promise<void> {
+export async function baseOpenBrowser(url: string, tokenCookie= true): Promise<void> {
   try {
     const authToken = process.env.COOKIE_AUTH_TOKEN;
     const ct0 = process.env.COOKIE_CT0;
@@ -20,7 +20,8 @@ export async function baseOpenBrowser(url: string): Promise<void> {
     await browser.url(url);
     await setBrowserSize()
 
-    if ((await browser.getCookies(['authToken'])).length === 0 && (await browser.getCookies(['ct0'])).length === 0) {
+    if (tokenCookie) {
+      if ((await browser.getCookies(['authToken'])).length === 0 && (await browser.getCookies(['ct0'])).length === 0) {
       await browser.setCookies([
         { name: 'auth_token', value: authToken },
         { name: 'ct0', value: ct0 }
@@ -28,6 +29,7 @@ export async function baseOpenBrowser(url: string): Promise<void> {
       await browser.pause(1000);
       await browser.refresh();
       await baseOpenBrowser(url);
+    }
     }
     await pageLoad(5);
     await browser.setTimeout({ pageLoad: 600000, script: 600000 });
