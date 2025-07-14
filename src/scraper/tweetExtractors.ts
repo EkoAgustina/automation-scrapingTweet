@@ -47,7 +47,7 @@ export async function swipeUpByLastIndex(indexArticle: number) {
 
     if (tweetCache.length >= 20) {
       const divider = (tweetCache.length / indexArticle)
-      const reducer = (50 / 100) * Math.ceil(divider);
+      const reducer = (40 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {

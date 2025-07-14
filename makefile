@@ -1,5 +1,5 @@
 # CUCUMBER TAGS
-CUCUMBER_TAGS='@scEighteen or @scNineTeen or @scTwenty'
+CUCUMBER_TAGS='@scEighteen'
 TWEETS_COUNT=1000
 SET_WDIO_LOG_LEVEL=error
 

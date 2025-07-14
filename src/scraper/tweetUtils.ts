@@ -65,13 +65,14 @@ export function saveTweetCache() {
 export function saveProfileTweetCache() {
   const dirPath = path.resolve('reporter', globalVariables.scrapingReportsName);
   const filePath = path.join(dirPath, `${globalVariables.scrapingReportsName}_metadata.json`);
+   const currentCount = tweetProfilieCache.length
   try {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
     }
 
     fs.writeFileSync(filePath, JSON.stringify(tweetProfilieCache, null, 2));
-    log("info", "✅ Profile tweet cache saved to file");
+    log("info", `✅ [${currentCount}] Profile tweet cache saved to file`);
   } catch (err: any) {
     log('error', 'Failed to save profile tweet cache', { err: new Error(err.message) });
     throw err;

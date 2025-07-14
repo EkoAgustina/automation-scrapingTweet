@@ -163,55 +163,112 @@ export async function swipeUpwithTime(duration: number) {
 //             }
 //         }
 
-        
+
 //     }
 // }
-export async function smartScrollUntilNewTweetFound(maxRetries = 5, pause = 2000) {
-    let lastHref = "";
-    let retries = 0;
-    let differentHrefCount = 0;
+// export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 2000) {
+//     let lastHref = "";
+//     let retries = 0;
+//     let differentHrefCount = 0;
 
-    for (;;) {
-        const tweets = await $$('article');
-        if (!tweets.length) break;
+//     for (;;) {
+//         const tweets = await $$('article');
+//         if (!tweets.length) break;
 
-        const last = tweets[tweets.length - 1];
-        await last.scrollIntoView();
-        await browser.pause(pause);
+//         const last = tweets[tweets.length - 1];
+//         await last.scrollIntoView();
+//         await browser.pause(pause);
 
-        const linkEl = await last.$('a[href*="/status/"]');
-        const href = await linkEl?.getAttribute('href');
+//         const linkEl = await last.$('a[href*="/status/"]');
+//         const href = await linkEl?.getAttribute('href');
 
-        if (!href) {
-            log("warn", `Failed to fetch href. Stop`);
-            break;
-        }
+//         if (!href) {
+//             log("warn", `Failed to fetch href. Stop`);
+//             break;
+//         }
 
-        // Handle the first iteration
-        if (!lastHref) {
-            lastHref = href;
-            log("info", `Initialize the first href: ${href}`);
-            continue;
-        }
+//         // Handle the first iteration
+//         if (!lastHref) {
+//             lastHref = href;
+//             log("info", `Initialize the first href: ${href}`);
+//             continue;
+//         }
 
-        //Detect changes
-        if (href !== lastHref) {
-            differentHrefCount++;
-            log("info", `New tweet found: ${href} ≠ ${lastHref} → change to ${differentHrefCount}`);
-            lastHref = href;
-            if (differentHrefCount >= 2) break;
-            continue;
-        }
+//         //Detect changes
+//         if (href !== lastHref) {
+//             differentHrefCount++;
+//             log("info", `New tweet found: ${href} ≠ ${lastHref} → change to ${differentHrefCount}`);
+//             lastHref = href;
+//             if (differentHrefCount >= 2) break;
+//             continue;
+//         }
 
-        // If it's still the same tweet
-        if (href === lastHref) {
-            retries++;
-            log("info", `Tweet still the same (${href}) → retry to-${retries}`);
-            if (retries >= maxRetries) {
-                log("info", `No new tweets after ${maxRetries} scroll. Stop.`);
+//         // If it's still the same tweet
+//         if (href === lastHref) {
+//             retries++;
+//             log("info", `Tweet still the same (${href}) → retry to-${retries}`);
+//             if (retries >= maxRetries) {
+//                 log("info", `No new tweets after ${maxRetries} scroll. Stop.`);
+//                 break;
+//             }
+//         }
+//     }
+// }
+export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 2000) {
+    try {
+        let lastHref = "";
+        let retries = 0;
+        let differentHrefCount = 0;
+
+        for (; ;) {
+            const tweets = await $$('article');
+            if (!tweets.length) break;
+
+            const last = tweets[tweets.length - 1];
+            await last.scrollIntoView();
+            await browser.pause(pause);
+
+            const swipeTweetLink = await swipeUpElDisplayedCustom(last, `a[href*="/status/`)
+            if (swipeTweetLink !== '200') throw new Error("href not found");
+            const linkEl = await last.$('a[href*="/status/"]');
+            const href = await linkEl?.getAttribute('href');
+
+            if (!href) {
+                log("warn", `Failed to fetch href. Stop`);
                 break;
             }
+
+            // 🔁 Iterasi pertama
+            if (!lastHref) {
+                lastHref = href;
+                log("info", `Initialize first href: ${href}`);
+                continue;
+            }
+
+            // 🔍 Ada perubahan tweet
+            if (href !== lastHref) {
+                differentHrefCount++;
+                log("info", `New tweet found: ${href} ≠ ${lastHref} → change ${differentHrefCount}`);
+                if (differentHrefCount >= 2) break;
+            } else {
+                // 🔁 Masih tweet yang sama
+                retries++;
+                log("info", `Tweet still the same (${href}) → retry to-${retries}`);
+                if (retries >= maxRetries) {
+                    // log("error", `No new tweets after ${maxRetries} scrolls. Stop.`);
+                    throw new Error(`No new tweets after ${maxRetries} scrolls. Stop.`)
+                    break;
+                }
+            }
+
+            // ✅ Update terakhir, selalu dilakukan
+            lastHref = href;
         }
+    } catch (err: any) {
+        log('error', 'An error occurred while trying smartScrollUntilNewTweetFound', { err: new Error(err.message) });
+        throw err
     }
+
 }
+
 
