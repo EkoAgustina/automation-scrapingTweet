@@ -2,7 +2,7 @@ import { convertDate } from "../utils/dateFormatter.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from "../utils/mapper.ts";
 import { actionGetText, ensureAndGetText } from "../utils/webdriver/getText.ts";
-import { swipeUpElDisplayedCustom, swipeUpwithTime } from "../utils/webdriver/swipeActions.ts";
+import { swipeUpElDisplayedCustom, swipeUpwithTimeExecute } from "../utils/webdriver/swipeActions.ts";
 import { checkDuplicateTweets, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
 import globalVariables from "../../resources/globalVariable.ts";
 import { measureTime } from "../utils/timer.ts";
@@ -47,12 +47,14 @@ export async function swipeUpByLastIndex(indexArticle: number) {
 
     if (tweetCache.length >= 20) {
       const divider = (tweetCache.length / indexArticle)
-      const reducer = (40 / 100) * Math.ceil(divider);
+      const reducer = (80 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
+
+      // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await swipeUpwithTime(i)
-        log("info", `Swipeup was done ${i} times.`)
+        await swipeUpwithTimeExecute(i,0.5)
+        log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
         await browser.pause(5000);
         await handleSww()
       }

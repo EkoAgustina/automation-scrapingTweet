@@ -80,16 +80,16 @@ export async function swipeUpIntoView(locator: string): Promise<string> {
  * Simulates a swipe up action on the screen for a given duration.
  * @param {number} time - The duration of the swipe action, specified in the number of repetitions.
  */
-export async function swipeUpwithTime(duration: number) {
-
+export async function swipeUpwithTimeExecute(duration: number, scrollRatio: number = 0.9) {
     for (let i = 0; i < duration; i++) {
-        await browser.execute(() => {
-            window.scrollBy(0, window.innerHeight * 0.9);
-        });
+        await browser.execute((ratio) => {
+            window.scrollBy(0, window.innerHeight * ratio);
+        }, scrollRatio); 
 
         await browser.pause(1000);
     }
 }
+
 
 // export async function smartScrollTweets(maxScrolls = 3, pause = 2000) {
 //     let lastHref = "";

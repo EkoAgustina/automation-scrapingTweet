@@ -1,7 +1,7 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { actionClick } from '../../utils/webdriver/click.ts';
 import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../utils/webdriver/assertions.ts';
-import { swipeUpwithTime, swipeUpElDisplayed } from "../../utils/webdriver/swipeActions.ts";
+import { swipeUpElDisplayed } from "../../utils/webdriver/swipeActions.ts";
 import { actionFill } from '../../utils/webdriver/fillInput.ts';
 import { actionEnter, baseOpenBrowser, takeScreenshot } from '../../utils/webdriver/browser.ts';
 import { log } from '../../utils/logger.ts';
@@ -106,19 +106,6 @@ When(/^User swipe up until he finds element "(.*)"$/, async (locator) => {
     }
 });
 
-/**
- * Step definition for the Cucumber step: Then User swipe up until <duration> seconds".
- * Simulates a swipe up action on the screen for the specified duration.
- * @param {number} duration - The duration of the swipe action, specified in seconds.
- */
-When(/^User swipe up until (.*) seconds$/, async (duration: number) => {
-    try {
-        await swipeUpwithTime(duration);
-    } catch (err: any) {
-        log('error', 'An error occurred', { err: new Error(err.message) });
-        throw err
-    }
-});
 
 /**
  * Step definition for check if the title of the currently opened website matches the expected title.
