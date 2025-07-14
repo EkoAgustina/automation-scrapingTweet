@@ -49,7 +49,6 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
         if (swipeCheck !== '200') throw new Error("Tweet not found");
         if (i !== 0 && i % 4 === 0) await swipeUpwithTimeExecute(1,0.5)
         if (i === indexArticle) await smartScrollUntilNewTweetFound()
-
         const tweetData = await extractTweetDataAtIndex(i);
 
         log("info", `The scraper has run ${extractTweetCallCount} times.`)
