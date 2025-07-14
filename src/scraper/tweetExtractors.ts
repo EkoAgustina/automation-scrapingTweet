@@ -2,7 +2,7 @@ import { convertDate } from "../utils/dateFormatter.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from "../utils/mapper.ts";
 import { actionGetText, ensureAndGetText, ensureTweetId } from "../utils/webdriver/getText.ts";
-import { swipeUpwithTimeExecute } from "../utils/webdriver/swipeActions.ts";
+import { scrollPageDownTimes } from "../utils/webdriver/swipeActions.ts";
 import { checkDuplicateTweets, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
 import globalVariables from "../../resources/globalVariable.ts";
 import { measureTime } from "../utils/timer.ts";
@@ -53,7 +53,7 @@ export async function swipeUpByLastIndex(indexArticle: number) {
       // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await swipeUpwithTimeExecute(i,0.5)
+        await scrollPageDownTimes(i,0.5)
         log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
         await browser.pause(5000);
         await handleSww()
@@ -102,8 +102,6 @@ export async function getSafeText(tweet: WebdriverIO.Element, selector: string, 
  * @throws {Error} - Throws if the tweet link cannot be found or loaded properly.
  */
 export async function getTweetId(tweet: WebdriverIO.Element) {
-  // const swipeTweetLink = await swipeUpElDisplayedCustom(tweet, `a[href*="/status/`)
-  // if (swipeTweetLink !== '200') throw new Error("Tweet not found");
   await ensureTweetId(tweet, `a[href*="/status/`, 'href not found')
   const tweetLink = await tweet.$('a[href*="/status/"]');
   const href = await tweetLink.getAttribute('href');

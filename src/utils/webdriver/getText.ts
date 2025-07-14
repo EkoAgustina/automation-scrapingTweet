@@ -1,6 +1,6 @@
 import { log } from "../logger.ts";
 import { elWaitForExistTweet, findElement } from "./element.ts";
-import { swipeUpElDisplayedCustom } from "./swipeActions.ts";
+import { scrollUntilElementVisible } from "./swipeActions.ts";
 
 
 
@@ -102,8 +102,8 @@ export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: str
   const elWait = await elWaitForExistTweet(tweet, selector);
   
   if (!elWait) {
-    const status = await swipeUpElDisplayedCustom(tweet, selector);
-    if (status !== '200') throw new Error(errorMsg);
+    const status = await scrollUntilElementVisible(tweet, selector, 0.9);
+    if (!status) throw new Error(errorMsg);
   }
 
   const text = await tweetGetText(tweet, selector);
@@ -114,8 +114,8 @@ export async function ensureTweetId(tweet: WebdriverIO.Element, selector: string
   const elWait = await elWaitForExistTweet(tweet, selector);
   
   if (!elWait) {
-    const status = await swipeUpElDisplayedCustom(tweet, selector);
-    if (status !== '200') throw new Error(errorMsg);
+    const status = await scrollUntilElementVisible(tweet, selector, 0.9);
+    if (!status) throw new Error(errorMsg);
   }
 
   return true;
