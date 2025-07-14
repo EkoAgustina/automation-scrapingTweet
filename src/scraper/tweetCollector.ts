@@ -3,7 +3,7 @@ import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
 import { smartScrollUntilNewTweetFound, swipeUpElDisplayed, swipeUpwithTimeExecute } from '../utils/webdriver/swipeActions.ts';
 import globalVariables from "../../resources/globalVariable.ts";
-import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache } from "./tweetUtils.ts";
+import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache, waitForProfileTitle } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
 import { baseOpenBrowser, pageLoad } from "../utils/webdriver/browser.ts";
 
@@ -107,11 +107,11 @@ export async function runScrapingLoopsProfilesLoops() {
       await baseOpenBrowser(`https://x.com/${username}`)
       await browser.pause(1000);
       await pageLoad(5);
+      await browser.pause(1000);
 
        const title = await browser.getTitle();
       if (!title.includes(username)) {
-        log("warn", `⚠️ Unexpected title "${title}" for ${username}. Skipping...`);
-        continue;
+        await waitForProfileTitle(username)
       }
 
       const loadProfileData = await extractProfileDataAtIndex()

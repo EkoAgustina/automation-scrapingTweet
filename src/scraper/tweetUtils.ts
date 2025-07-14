@@ -3,7 +3,7 @@ import globalVariables from "../../resources/globalVariable.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from '../utils/mapper.ts';
 import { elWaitForExist, findElement } from '../utils/webdriver/element.ts';
-import { pageLoad } from '../utils/webdriver/browser.ts';
+import { baseOpenBrowser, pageLoad } from '../utils/webdriver/browser.ts';
 import { actionClick } from '../utils/webdriver/click.ts';
 import path from 'path';
 
@@ -65,7 +65,7 @@ export function saveTweetCache() {
 export function saveProfileTweetCache() {
   const dirPath = path.resolve('reporter', globalVariables.scrapingReportsName);
   const filePath = path.join(dirPath, `${globalVariables.scrapingReportsName}_metadata.json`);
-   const currentCount = tweetProfilieCache.length
+  const currentCount = tweetProfilieCache.length
   try {
     if (!fs.existsSync(dirPath)) {
       fs.mkdirSync(dirPath, { recursive: true });
@@ -116,7 +116,7 @@ export function checkDuplicateTweets(tweetId: string) {
   const found = tweetCache.some((item: any) => item.tweet_id === tweetId);
   if (found) {
     if (globalVariables.tweetCountCheck !== 0) {
-      log('warn', `[${globalVariables.scenarioName}] [${globalVariables.tweetCountCheck}] Tweet already exists, ${tweetId}`);
+      log('warn', `[${globalVariables.scenarioName}] [${globalVariables.tweetCountCheck}] ⚠️ Tweet already exists, ${tweetId}`);
     }
     return 'Tweet already exists';
   }
@@ -219,3 +219,38 @@ export async function handleSww() {
     throw err
   }
 }
+
+export async function waitForProfileTitle(username: string): Promise<boolean> {
+  const waitTimes = [180_000, 180_000, 300_000, 480_000, 600_000];
+  const user = username.toLowerCase();
+  let attempts = 0;
+
+  try {
+    for (const waitTime of waitTimes) {
+      await browser.reloadSession();
+      await baseOpenBrowser(`https://x.com/${user}`);
+      await browser.pause(2000)
+      await pageLoad(5);
+
+      const title = (await browser.getTitle()).toLowerCase();
+      
+      attempts++;
+
+      if (title.includes(user)) {
+        log("info", `✅ Success, "${title}" contains ${username} (attempt ${attempts})`);
+        return true;
+      }
+
+      log("warn", `⚠️ Attempt ${attempts}: Title "${title}" does not contain "${username}". Waiting ${waitTime / 60000} min...`);
+      
+      await browser.pause(waitTime);
+    }
+
+    throw new Error(`❌ Exhausted ${attempts} attempts. Title never contained "${username}".`);
+  } catch (err: any) {
+    log('error', '❌ An error occurred in waitForProfileTitle', { err: new Error(err.message) });
+    throw err;
+  }
+}
+
+
