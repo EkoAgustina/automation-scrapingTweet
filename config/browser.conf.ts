@@ -6,26 +6,29 @@ if (globalVariables.os === 'linux') {
     config.hostname = process.env.HOST_NAME!.split(':')[0];
     config.port = parseInt(process.env.HOST_NAME!.split(':')[1]);
     config.capabilities = [
-                {
-                    maxInstances: 5,
-                    browserName: 'chrome',
-                    'goog:chromeOptions': {
-                        args: ['--headless=new', 
-                            '--no-sandbox',
-                            '--incognito',
-                            'enable-automation',
-                            '--disable-gpu',
-                            '--disable-gpu-compositing', 
-                            '--disable-dev-shm-usage',
-                            '--disable-extensions',
-                            '--disable-cache', 
-                            '--disable-background-networking',
-                            `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
-                    },
-                    acceptInsecureCerts: true,
-                    // webSocketUrl: true
-                }
-            ];
+        {
+            maxInstances: 5,
+            browserName: 'chrome',
+            acceptInsecureCerts: true,
+            'goog:chromeOptions': {
+                args: [
+                    '--headless=new',
+                    '--no-sandbox',
+                    '--disable-gpu',
+                    '--disable-gpu-compositing',
+                    '--disable-dev-shm-usage',
+                    '--disable-extensions',
+                    '--disable-cache',
+                    '--disable-background-networking',
+                    '--incognito',
+                    '--window-size=1280,800',
+                    '--lang=en-US',
+                    '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36'
+                ]
+            }
+        }
+    ]
+
 
     config.services = ['devtools'];
 } else {
@@ -38,15 +41,15 @@ if (globalVariables.os === 'linux') {
                     maxInstances: 5,
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--headless=new', 
+                        args: ['--headless=new',
                             '--no-sandbox',
                             '--incognito',
                             'enable-automation',
                             '--disable-gpu',
-                            '--disable-gpu-compositing', 
+                            '--disable-gpu-compositing',
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
-                            '--disable-cache', 
+                            '--disable-cache',
                             '--disable-background-networking',
                             `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
                     },
@@ -60,7 +63,7 @@ if (globalVariables.os === 'linux') {
                 {
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--disable-cache','enable-automation','--incognito']
+                        args: ['--disable-cache', 'enable-automation', '--incognito']
                     },
                     maxInstances: 5,
                     acceptInsecureCerts: true,
@@ -77,15 +80,15 @@ if (globalVariables.os === 'linux') {
                     maxInstances: 6,
                     browserName: 'chrome',
                     'goog:chromeOptions': {
-                        args: ['--headless=new', 
-                            '--no-sandbox', 
-                            '--incognito', 
+                        args: ['--headless=new',
+                            '--no-sandbox',
+                            '--incognito',
                             '--disable-blink-features=AutomationControlled',
                             '--disable-gpu',
-                            '--disable-gpu-compositing', 
+                            '--disable-gpu-compositing',
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
-                            '--disable-cache', 
+                            '--disable-cache',
                             // '--remote-debugging-pipe',
                             `--user-agent=${globalVariables.getRandomUserAgent()}`]
                     },
@@ -115,15 +118,15 @@ config.before = async () => {
 
     // customGeolocation(globalVariables.setLatitude, globalVariables.setLongitude)
     await browser.deleteCookies();
-        await browser.execute(() => {
-            if (window.caches) {
-                caches.keys().then(function(names) {
-                    names.forEach(function(name) {
-                        caches.delete(name);
-                    });
+    await browser.execute(() => {
+        if (window.caches) {
+            caches.keys().then(function (names) {
+                names.forEach(function (name) {
+                    caches.delete(name);
                 });
-            }
-        });
+            });
+        }
+    });
     customGeolocation(globalVariables.setLatitude, globalVariables.setLongitude)
 
 };

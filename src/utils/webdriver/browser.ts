@@ -87,7 +87,7 @@ export async function setBrowserSize(): Promise<void> {
 
     if (globalVariables.os === 'linux' || browserName === 'docker') {
       // await browser.maximizeWindow();
-      await browser.setWindowSize(1470, 854);
+      await browser.setWindowSize(1280, 800);
     } else if (browserName === 'chrome' || browserName === 'headless') {
       await browser.maximizeWindow();
     } else {
