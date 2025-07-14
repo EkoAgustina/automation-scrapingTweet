@@ -29,6 +29,6 @@ retryButton_sww: 'By.xpath => //div[.="Retry"]'
 # Profile
 profile_joined: 'By.xpath => //span[contains(text(), "Bergabung") or contains(text(), "Joined")]'
 profile_following: 'By.xpath => //button[.//span[text()="Following"]]//span[1]/span | (//a[contains(@href, "/following") and .//span[text()="Following"]]/span/span)[1]'
-profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers")]/span[1]/span'
+profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers")]/span[1]/span | //button[.//span[text()="Followers"]]//span[1]/span'
 profile_verified: 'By.xpath => //button[@aria-label="Provides details about verified accounts."]//*[name()="svg"]'
 profile_posts: 'By.xpath => //div[contains(text(), "posts") and not(.//*)]'

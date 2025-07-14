@@ -214,7 +214,7 @@ export async function swipeUpwithTime(duration: number) {
 //         }
 //     }
 // }
-export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 2000) {
+export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 3000) {
     try {
         let lastHref = "";
         let retries = 0;
