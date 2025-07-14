@@ -6,28 +6,26 @@ if (globalVariables.os === 'linux') {
     config.hostname = process.env.HOST_NAME!.split(':')[0];
     config.port = parseInt(process.env.HOST_NAME!.split(':')[1]);
     config.capabilities = [
-        {
-            maxInstances: 6,
-            browserName: 'chrome',
-            'goog:chromeOptions': {
+                {
+                    maxInstances: 5,
+                    browserName: 'chrome',
+                    'goog:chromeOptions': {
                         args: ['--headless=new', 
                             '--no-sandbox',
-                            '--incognito', 
+                            '--incognito',
+                            'enable-automation',
                             '--disable-gpu',
-                            'enable-automation',
                             '--disable-gpu-compositing', 
-                            'enable-automation',
                             '--disable-dev-shm-usage',
                             '--disable-extensions',
                             '--disable-cache', 
                             '--disable-background-networking',
-                            // '--remote-debugging-pipe',
-                            `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36`]
-            },
-            acceptInsecureCerts: true,
-            // webSocketUrl: true
-        }
-    ];
+                            `--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36`]
+                    },
+                    acceptInsecureCerts: true,
+                    // webSocketUrl: true
+                }
+            ];
 
     config.services = ['devtools'];
 } else {
