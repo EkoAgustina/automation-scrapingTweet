@@ -214,7 +214,7 @@ export async function swipeUpwithTime(duration: number) {
 //         }
 //     }
 // }
-export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 3000) {
+export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 2500) {
     try {
         let lastHref = "";
         let retries = 0;
@@ -257,8 +257,8 @@ export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 300
                 if (retries >= maxRetries) {
                     // log("error", `No new tweets after ${maxRetries} scrolls. Stop.`);
                     throw new Error(`No new tweets after ${maxRetries} scrolls. Stop.`)
-                    break;
                 }
+                await browser.pause(pause);
             }
 
             // ✅ Update terakhir, selalu dilakukan

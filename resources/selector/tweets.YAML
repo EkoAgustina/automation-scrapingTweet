@@ -22,13 +22,14 @@ replyingTo: 'By.xpath => //div[starts-with(normalize-space(.), "Replying to @")]
 tweetQuetes: 'By.xpath => //div[@role="link"]//span[starts-with(text(), "@")]'
 
 
-# retryButton_sww: 'By.xpath => //button[@class="css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-3pj75a r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l"]'
+# retryButton_sww: 'By.xpath => //button[@class="css-175oi2r r-sdzlij r-1phboty r-rs99b7 r-lrvibr r-2yi16 r-1qi8awa r-3pj75a r-1loqt21 r-o7ynqc r-6416eg r-1ny4l3l"]' 
 retryButton_sww: 'By.xpath => //div[.="Retry"]'
 
 
 # Profile
 profile_joined: 'By.xpath => //span[contains(text(), "Bergabung") or contains(text(), "Joined")]'
 profile_following: 'By.xpath => //button[.//span[text()="Following"]]//span[1]/span | (//a[contains(@href, "/following") and .//span[text()="Following"]]/span/span)[1]'
-profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers")]/span[1]/span | //button[.//span[text()="Followers"]]//span[1]/span'
+# profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers")]/span[1]/span | //button[.//span[text()="Followers"]]//span[1]/span'
+profile_followers: 'By.xpath => //a[contains(@href, "/verified_followers") or contains(@href, "/verified_follower") ]/span[1]/span | //button[.//span[text()="Followers" or text()="Follower"]]//span[1]/span'
 profile_verified: 'By.xpath => //button[@aria-label="Provides details about verified accounts."]//*[name()="svg"]'
 profile_posts: 'By.xpath => //div[contains(text(), "posts") and not(.//*)]'
