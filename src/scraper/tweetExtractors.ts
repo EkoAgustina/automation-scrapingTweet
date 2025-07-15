@@ -53,7 +53,7 @@ export async function swipeUpByLastIndex(indexArticle: number) {
       // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await scrollPageDownTimes(i,0.5)
+        await scrollPageDownTimes(i,0.4)
         log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
         await browser.pause(5000);
         await handleSww()

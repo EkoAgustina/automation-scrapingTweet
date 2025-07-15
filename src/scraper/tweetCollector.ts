@@ -1,7 +1,7 @@
 import { keyElement } from "../utils/mapper.ts";
 import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
-import { smartScrollUntilNewTweetFound, swipeUpElDisplayed, scrollPageDownTimes } from '../utils/webdriver/swipeActions.ts';
+import { smartScrollUntilNewTweetFound, swipeUpElDisplayed } from '../utils/webdriver/swipeActions.ts';
 import globalVariables from "../../resources/globalVariable.ts";
 import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache, waitForProfileTitle } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
@@ -47,8 +47,10 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
         await handleSww()
         const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
         if (swipeCheck !== '200') throw new Error("Tweet not found");
-        if (i !== 0 && i % 3 === 0) await scrollPageDownTimes(1,0.7)
-        if (i === indexArticle) await smartScrollUntilNewTweetFound()
+        // if (i !== 0 && i % 4 === 0) await scrollPageDownTimes(1,0.5)
+        // if (i !== 0 && i % 5 === 0) await smartScrollUntilNewTweetFound()
+        // if (i === indexArticle) await smartScrollUntilNewTweetFound()
+        if (i === 5 || i === indexArticle) await smartScrollUntilNewTweetFound()
         const tweetData = await extractTweetDataAtIndex(i);
 
         log("info", `The scraper has run ${extractTweetCallCount} times.`)

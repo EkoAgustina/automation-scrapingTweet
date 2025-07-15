@@ -102,7 +102,7 @@ export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: str
   const elWait = await elWaitForExistTweet(tweet, selector);
   
   if (!elWait) {
-    const status = await scrollUntilElementVisible(tweet, selector, 0.9);
+    const status = await scrollUntilElementVisible(tweet, selector, 0.5);
     if (!status) throw new Error(errorMsg);
   }
 
@@ -114,7 +114,7 @@ export async function ensureTweetId(tweet: WebdriverIO.Element, selector: string
   const elWait = await elWaitForExistTweet(tweet, selector);
   
   if (!elWait) {
-    const status = await scrollUntilElementVisible(tweet, selector, 0.9);
+    const status = await scrollUntilElementVisible(tweet, selector, 0.7);
     if (!status) throw new Error(errorMsg);
   }
 
