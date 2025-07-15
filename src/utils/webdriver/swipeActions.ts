@@ -93,7 +93,7 @@ export async function swipeUpElDisplayed(locator: string): Promise<string> {
 //         throw err
 //     }
 // }
-export async function scrollUntilElementVisible(tweet: WebdriverIO.Element, locator: string, scrollRatio = 0.9, maxScrolls = 10,): Promise<boolean> {
+export async function scrollUntilElementVisible(tweet: WebdriverIO.Element, locator: string, scrollRatio = 0.6, maxScrolls = 12,): Promise<boolean> {
     for (let i = 0; i < maxScrolls; i++) {
         const isVisible = await elWaitForExistTweet(tweet, locator)
 
@@ -267,6 +267,7 @@ export async function scrollPageDownTimes(duration: number, scrollRatio: number 
 // }
 async function extractStatusHref(tweet: WebdriverIO.Element, index: number): Promise<string> {
   try {
+    await scrollUntilElementVisible(tweet,'a[href*="/status/"]')
     await browser.waitUntil(async () => {
       const a = await tweet.$('a[href*="/status/"]');
       return a && await a.isExisting();
@@ -315,7 +316,7 @@ export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 100
       await browser.pause(pause);
 
       // Ambil 6 tweet terakhir
-      const lastTweets = tweets.slice(-6);
+      const lastTweets = tweets.slice(-5);
 
       // Ambil href setiap tweet (dengan validasi ketat)
       const hrefs = await Promise.all(lastTweets.map((tweet, index) =>
