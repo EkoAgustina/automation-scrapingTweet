@@ -30,14 +30,21 @@ export async function elWaitForExist(locator: string, duration = 6500) {
  */
 export async function elWaitForExistTweet(tweet: WebdriverIO.Element, locator: string) {
   try {
-    await browser.pause(2000)
-    await (await tweet.$(locator)).waitForExist({ timeout: 6500 })
+    await browser.waitUntil(async () => {
+      const el = await tweet.$(locator)
+      return await el.isExisting()
+    }, {
+      timeout: 6500,
+      interval: 500, // lebih agresif polling tiap 250ms
+      timeoutMsg: 'Tweet element did not exist within 6500ms',
+    })
     return true
-  } catch (err:any) {
-    log('warn', 'An error occurred, the tweet object element does not exist in the DOM', { err: err.message});
+  } catch (err: any) {
+    log('warn', 'An error occurred, the tweet object element does not exist in the DOM', { err: err.message })
     return false
   }
 }
+
 
 /**
  * Find an element based on the provided locator.
