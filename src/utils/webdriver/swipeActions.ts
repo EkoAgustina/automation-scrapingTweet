@@ -224,6 +224,9 @@ export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 250
       const hrefs = await Promise.all(last3Tweets.map(async (tweet, index) => {
         let href = "";
         for (let i = 0; i < 5; i++) {
+          await browser.pause(1500);
+          const swipeTweetLink = await scrollUntilElementVisible(tweet, `a[href*="/status/`,0.5)
+          if (!swipeTweetLink) throw new Error("href not found");
           const a = await tweet.$('a[href*="/status/"]');
           href = await a?.getAttribute('href') || "";
           if (href) break;
