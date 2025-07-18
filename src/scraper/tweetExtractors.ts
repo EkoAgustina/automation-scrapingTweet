@@ -91,6 +91,12 @@ export async function getSafeText(tweet: WebdriverIO.Element, selector: string, 
   }
 }
 
+async function isTweetUnavailable(tweet: WebdriverIO.Element): Promise<boolean> {
+  const span = await tweet.$('span=This post is unavailable.');
+  return span && await span.isExisting();
+}
+
+
 /**
  * Retrieves the tweet ID and full tweet URL (href) from a tweet element.
  *
@@ -251,6 +257,11 @@ if (!articleInspection && (index !== 15 && index !== 14 && index !== 13 && index
   globalVariables.tweetCountCheck++;
 
   for (const tweet of tweetArticles) {
+    if (await isTweetUnavailable(tweet)) {
+      log("warn", "Tweet is unavailable. Skipping...");
+      return null;
+    }
+
     const { href, tweetId } = await measureTime("getTweetId", () => getTweetId(tweet));
     if (checkDuplicateTweets(tweetId) === 'Tweet already exists') return null;
 
