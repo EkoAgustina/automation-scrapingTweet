@@ -1,7 +1,6 @@
 import { Given, When, Then } from '@wdio/cucumber-framework';
 import { actionClick } from '../../utils/webdriver/click.ts';
 import { elementDisplayed, equalData, titleEqual, urlEqual } from '../../utils/webdriver/assertions.ts';
-import { swipeUpElDisplayed } from "../../utils/webdriver/swipeActions.ts";
 import { actionFill } from '../../utils/webdriver/fillInput.ts';
 import { actionEnter, baseOpenBrowser, takeScreenshot } from '../../utils/webdriver/browser.ts';
 import { log } from '../../utils/logger.ts';
@@ -88,23 +87,6 @@ Then(/^Element "(.*)" is (equal|not equal) with data "(.*)"$/, async (locator, c
     }
 });
 
-/**
- * Step definition for the Cucumber step: Then User swipe up until he finds element "<locator>".
- * Scrolls up the screen until the specified element becomes displayed.
- * @param {string} locator - The locator of the element to find while scrolling up.
- * @returns {Promise<void>} - A Promise that resolves after the element is found or if it's already displayed.
- */
-When(/^User swipe up until he finds element "(.*)"$/, async (locator) => {
-    try {
-        const swpieElement = await swipeUpElDisplayed(locator);
-        if (swpieElement != '200') {
-            console.error("ga adaa")
-        }
-    } catch (err: any) {
-        log('error', 'An error occurred', { err: new Error(err.message) });
-        throw err
-    }
-});
 
 
 /**

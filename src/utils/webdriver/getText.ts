@@ -115,7 +115,11 @@ export async function ensureTweetId(tweet: WebdriverIO.Element, selector: string
   
   if (!elWait) {
     const status = await scrollUntilElementVisible(tweet, selector, 0.7);
-    if (!status) throw new Error(errorMsg);
+    if (!status){
+      const outerHTML = await tweet.getHTML();
+      log("info", `Tweet outerHTML: ${outerHTML}`);
+      throw new Error(errorMsg);
+    } 
   }
 
   return true;

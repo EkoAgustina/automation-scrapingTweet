@@ -2,7 +2,7 @@ import { convertDate } from "../utils/dateFormatter.ts";
 import { log } from "../utils/logger.ts";
 import { keyElement } from "../utils/mapper.ts";
 import { actionGetText, ensureAndGetText, ensureTweetId } from "../utils/webdriver/getText.ts";
-import { scrollPageDownTimes } from "../utils/webdriver/swipeActions.ts";
+import { scrollPageDownTimes, scrollUntilElementDisplayed } from "../utils/webdriver/swipeActions.ts";
 import { checkDuplicateTweets, extractUsername, handleSww, tweetCache } from "./tweetUtils.ts";
 import globalVariables from "../../resources/globalVariable.ts";
 import { measureTime } from "../utils/timer.ts";
@@ -47,13 +47,13 @@ export async function swipeUpByLastIndex(indexArticle: number) {
 
     if (tweetCache.length >= 20) {
       const divider = (tweetCache.length / indexArticle)
-      const reducer = (80 / 100) * Math.ceil(divider);
+      const reducer = (50 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
 
       // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await scrollPageDownTimes(i,0.4)
+        await scrollPageDownTimes(i,0.5)
         log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
         await browser.pause(5000);
         await handleSww()
@@ -238,8 +238,16 @@ export function getInteractionInfo(posting: string, replyingTo: string, tweetQuo
  * @returns {Promise<TweetData | null>} - A `TweetData` object if extraction is successful, or `null` if duplicate or failed.
  */
 export async function extractTweetDataAtIndex(index: number): Promise<TweetData | null> {
-  const tweetArticles = await $$(`${keyElement("tweets:tweetArticles")}[${index}]`);
-  //   extractTweetCallCount++;
+  const articles = `${keyElement("tweets:tweetArticles")}[${index}]`
+  log("info",`Target article: ${articles}`)
+  let maxScrolls = 5;
+  if (index !== 15 && index !== 14 && index !== 13 && index !== 12) maxScrolls = 8
+
+  const articleInspection = await scrollUntilElementDisplayed(articles,0.8,maxScrolls)
+if (!articleInspection && (index !== 15 && index !== 14 && index !== 13 && index !== 12 && index !== 11)) throw new Error(`Target article ${articles} not found!`);
+
+
+  const tweetArticles = await $$(articles);
   globalVariables.tweetCountCheck++;
 
   for (const tweet of tweetArticles) {
@@ -250,7 +258,6 @@ export async function extractTweetDataAtIndex(index: number): Promise<TweetData 
     if (!username || !textTweet) return null;
 
     const { replies, reposts, likes, replyingTo, tweetQuotes } = await measureTime("getTweetStats", () => getTweetStats(tweet));
-    await browser.pause(1000);
 
     const {
       isRegularPost,

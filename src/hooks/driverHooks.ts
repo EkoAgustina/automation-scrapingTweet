@@ -5,7 +5,7 @@ import { log } from "../utils/logger.ts";
 import { printExecutionSummary } from "../utils/timer.ts";
 import { takeScreenshot } from "../utils/webdriver/browser.ts";
 
-let keepAliveInterval: any;
+// let keepAliveInterval: any;
 
 /**
  * Executes before each Cucumber scenario.
@@ -25,14 +25,14 @@ export async function hookBeforeScenario(world: ITestCaseHookParameter) {
     log("warn", "No valid date found in scenario name.");
   }
 
-  keepAliveInterval = setInterval(async () => {
-    try {
-      await browser.getTitle();
-      log("info", "Keep-alive ping sent")
-    } catch (e: any) {
-      log("warn", `Keep-alive failed: ${e.message}`)
-    }
-  }, 5 * 60 * 1000);
+  // keepAliveInterval = setInterval(async () => {
+  //   try {
+  //     await browser.getTitle();
+  //     log("info", "Keep-alive ping sent")
+  //   } catch (e: any) {
+  //     log("warn", `Keep-alive failed: ${e.message}`)
+  //   }
+  // }, 5 * 60 * 1000);
 
   // try {
   //   await browser.cdp('Network', 'enable');
@@ -55,9 +55,9 @@ export async function hookBeforeScenario(world: ITestCaseHookParameter) {
  * @returns {Promise<void>} - A Promise that resolves after updating properties and saving screenshots.
  */
 export async function hooksAfterScenario(world: any, result: any): Promise<void> {
-  if (keepAliveInterval) {
-    clearInterval(keepAliveInterval);
-  }
+  // if (keepAliveInterval) {
+  //   clearInterval(keepAliveInterval);
+  // }
   const propertiesPath = globalVariables.allureProperties;
   const properties = PropertiesReader(propertiesPath);
   const allureHostUrl = () => {

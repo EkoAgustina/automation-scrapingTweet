@@ -1,5 +1,5 @@
 import { browser } from '@wdio/globals'
-import { elWaitForExistTweet, findElement } from './element.ts';
+import { elWaitForExist, elWaitForExistTweet, findElement } from './element.ts';
 import { log } from '../logger.ts';
 
 
@@ -8,93 +8,34 @@ import { log } from '../logger.ts';
  * @param {string} locator - The locator of the element to check its display status.
  * @returns {Promise<void>} - A Promise that resolves after the element is displayed or if it's already displayed.
  */
-export async function swipeUpElDisplayed(locator: string): Promise<string> {
+export async function scrollUntilElementDisplayed(locator: string, scrollRatio = 0.6, maxScrolls = 12,): Promise<boolean> {
     try {
-        const windowSize = await browser.getWindowSize();
-        const coordinateX = Math.round(windowSize.width * 0.2)
-        const coordinateY = Math.round(windowSize.height * 1.70)
-        let attempts = 0;
-        const maxAttempts = 13;
+        for (let i = 0; i <= maxScrolls; i++) {
+        const isVisible = await elWaitForExist(locator,6500)
 
-        while (!await (await findElement(locator)).isDisplayed()) {
-            await browser.scroll(coordinateX, coordinateY)
-            log("info", `Swipe attempts: ${attempts}`);
-            await browser.pause(1000);
-            attempts++
-
-            if (attempts >= maxAttempts) {
-                log('warn', 'not found, swipe up exceeded', { err: locator });
-                return '404'
-            }
+        if (isVisible) {
+            log('info', `✅ Element "${locator}" found on attempt ${i + 1}`);
+            return true;
         }
 
-        // await scrollIntoView(locator)
-        log("info", `${locator} found after ${attempts} swipes`);
-        return '200'
+        // Scroll ke bawah
+        await browser.execute((ratio) => {
+            window.scrollBy(0, window.innerHeight * ratio);
+        }, scrollRatio);
+        log("info",`Attempt ${i} to scroll.`)
+    }
+
+    log('warn', `⚠️ Element "${locator}" not found after ${maxScrolls} scrolls.`);
+    return false;
     } catch (err: any) {
-        log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
+        log('error', 'An error occurred while trying scrollUntilElementDisplayed', { err: new Error(err.message) });
         throw err
     }
-}
+} 
 
-// export async function swipeUpElDisplayedCustom(tweet: WebdriverIO.Element, locator: string): Promise<string> {
-//     try {
-//         const windowSize = await browser.getWindowSize();
-//         const coordinateX = Math.round(windowSize.width * 0.2)
-//         const coordinateY = Math.round(windowSize.height * 1.70)
-//         let attempts = 0;
-//         const maxAttempts = 6;
-
-//         while (!await elWaitForExistTweet(tweet, locator)) {
-//             await browser.scroll(coordinateX, coordinateY)
-//             log("info", `Swipe attempts: ${attempts}`);
-//             await browser.pause(1000);
-//             attempts++
-
-//             if (attempts >= maxAttempts) {
-//                 log('warn', 'Element not found, swipe up exceeded', { err: locator });
-//                 return '404'
-//             }
-//         }
-
-//         // await scrollIntoView(locator)
-//         log("info", `${locator} found after ${attempts} swipes`);
-//         return '200'
-//     } catch (err: any) {
-//         log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
-//         throw err
-//     }
-// }
-// export async function swipeUpElDisplayedCustom(tweet: WebdriverIO.Element, locator: string): Promise<string> {
-//     try {
-//         const windowSize = await browser.getWindowSize();
-//         const coordinateX = Math.round(windowSize.width * 0.2)
-//         const coordinateY = Math.round(windowSize.height * 1.70)
-//         let attempts = 0;
-//         const maxAttempts = 6;
-
-//         while (!await elWaitForExistTweet(tweet, locator)) {
-//             await browser.scroll(coordinateX, coordinateY)
-//             log("info", `Swipe attempts: ${attempts}`);
-//             await browser.pause(1000);
-//             attempts++
-
-//             if (attempts >= maxAttempts) {
-//                 log('warn', 'Element not found, swipe up exceeded', { err: locator });
-//                 return '404'
-//             }
-//         }
-
-//         // await scrollIntoView(locator)
-//         log("info", `${locator} found after ${attempts} swipes`);
-//         return '200'
-//     } catch (err: any) {
-//         log('error', 'An error occurred while trying to swipe up until the element was found.', { err: new Error(err.message) });
-//         throw err
-//     }
-// }
 export async function scrollUntilElementVisible(tweet: WebdriverIO.Element, locator: string, scrollRatio = 0.6, maxScrolls = 12,): Promise<boolean> {
-    for (let i = 0; i < maxScrolls; i++) {
+    try {
+        for (let i = 0; i <= maxScrolls; i++) {
         const isVisible = await elWaitForExistTweet(tweet, locator)
 
         if (isVisible) {
@@ -106,10 +47,15 @@ export async function scrollUntilElementVisible(tweet: WebdriverIO.Element, loca
         await browser.execute((ratio) => {
             window.scrollBy(0, window.innerHeight * ratio);
         }, scrollRatio);
+        log("info",`Attempt ${i} to scroll.`)
     }
 
     log('warn', `⚠️ Element "${locator}" not found after ${maxScrolls} scrolls.`);
     return false;
+    } catch (err: any) {
+        log('error', 'An error occurred while trying scrollUntilElementVisible', { err: new Error(err.message) });
+        throw err
+    }
 }
 
 
@@ -310,13 +256,13 @@ export async function smartScrollUntilNewTweetFound(maxRetries = 12, pause = 100
 
       // Scroll ke bawah
       await browser.execute(() => {
-        window.scrollBy(0, window.innerHeight * 0.9);
+        window.scrollBy(0, window.innerHeight * 0.5);
       });
 
       await browser.pause(pause);
 
       // Ambil 6 tweet terakhir
-      const lastTweets = tweets.slice(-5);
+      const lastTweets = tweets.slice(-3);
 
       // Ambil href setiap tweet (dengan validasi ketat)
       const hrefs = await Promise.all(lastTweets.map((tweet, index) =>

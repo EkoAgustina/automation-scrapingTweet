@@ -1,14 +1,12 @@
-import { keyElement } from "../utils/mapper.ts";
 import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
-import { smartScrollUntilNewTweetFound, swipeUpElDisplayed } from '../utils/webdriver/swipeActions.ts';
 import globalVariables from "../../resources/globalVariable.ts";
 import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache, waitForProfileTitle } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
 import { baseOpenBrowser, pageLoad } from "../utils/webdriver/browser.ts";
+import { scrollPageDownTimes } from "../utils/webdriver/swipeActions.ts";
 
-let extractTweetCallCount = 0;
-const indexArticle = 11;
+export const indexArticle = 15;
 let lastIndexCount = 0
 
 /**
@@ -21,14 +19,14 @@ let lastIndexCount = 0
  * @param {number} tweetLimit - The maximum number of tweets to scrape.
  */
 export async function runTweetScrapingLoops(tweetLimit: number) {
-  const requestTweet: number = tweetLimit + (tweetLimit * 0.8);
+  const requestTweet: number = tweetLimit + (tweetLimit * 1.8);
 
   const indexDivisorTotal = Math.ceil(requestTweet / indexArticle);
   let currentRequestTweet = 0;
 
   try {
     loadTweetCache()
-    for (let divisorIndex = 0; divisorIndex < indexDivisorTotal; divisorIndex++) {
+    for (let divisorIndex = 0; divisorIndex <= indexDivisorTotal; divisorIndex++) {
       if (checkIfTweetLimitReached(tweetLimit)) {
         log("info", `✅ Tweet limit of ${tweetLimit} already reached. Skipping scraping.`);
         return;
@@ -45,15 +43,10 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
           break;
         }
         await handleSww()
-        const swipeCheck = await swipeUpElDisplayed(`${keyElement("tweets:tweetArticles")}[${i}]`);
-        if (swipeCheck !== '200') throw new Error("Tweet not found");
-        // if (i !== 0 && i % 4 === 0) await scrollPageDownTimes(1,0.5)
-        // if (i !== 0 && i % 5 === 0) await smartScrollUntilNewTweetFound()
-        // if (i === indexArticle) await smartScrollUntilNewTweetFound()
-        if (i === 5 || i === indexArticle) await smartScrollUntilNewTweetFound()
+        if (i === indexArticle || i === 7) await scrollPageDownTimes(1,0.9)
         const tweetData = await extractTweetDataAtIndex(i);
 
-        log("info", `The scraper has run ${extractTweetCallCount} times.`)
+        log("info", `The scraper has run ${globalVariables.tweetCountCheck} times.`)
 
         if (!tweetData) continue;
         const csvRow = tweetData

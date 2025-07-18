@@ -32,7 +32,7 @@ export async function baseOpenBrowser(url: string, tokenCookie= true): Promise<v
     }
     }
     await pageLoad(5);
-    await browser.setTimeout({ pageLoad: 600000, script: 600000 });
+    // await browser.setTimeout({ pageLoad: 600000, script: 600000 });
     log('info', `Width: ${(await browser.getWindowSize()).width}, Height: ${(await browser.getWindowSize()).height}`);
 
     await browser.pause(2000)
