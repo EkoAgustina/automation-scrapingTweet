@@ -89,15 +89,6 @@ export async function tweetGetText(tweet: WebdriverIO.Element, locator: string) 
   }
 }
 
-// export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: string, errorMsg: string): Promise<string> {
-//   const elWait = await elWaitForExistTweet(tweet, selector)
-//   if (!elWait) {
-//     const status = await swipeUpElDisplayedCustom(tweet, selector);
-//     if (status !== '200') throw new Error(errorMsg);
-//     const text = await tweetGetText(tweet, selector);
-//     return text?.trim() || '';
-//   }
-// }
 export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: string, errorMsg: string): Promise<string> {
   const elWait = await elWaitForExistTweet(tweet, selector);
   

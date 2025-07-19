@@ -47,13 +47,13 @@ export async function swipeUpByLastIndex(indexArticle: number) {
 
     if (tweetCache.length >= 20) {
       const divider = (tweetCache.length / indexArticle)
-      const reducer = (50 / 100) * Math.ceil(divider);
+      const reducer = (40 / 100) * Math.ceil(divider);
       const lastIndex = Math.ceil(divider) - Math.ceil(reducer)
 
       // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await scrollPageDownTimes(i,0.7)
+        await scrollPageDownTimes(i,0.9)
         log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
         await browser.pause(2500);
         await handleSww()

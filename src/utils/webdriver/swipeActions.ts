@@ -48,6 +48,7 @@ export async function scrollUntilElementVisible(tweet: WebdriverIO.Element, loca
             window.scrollBy(0, window.innerHeight * ratio);
         }, scrollRatio);
         log("info",`Attempt ${i} to scroll.`)
+         await browser.pause(1000);
     }
 
     log('warn', `⚠️ Element "${locator}" not found after ${maxScrolls} scrolls.`);
