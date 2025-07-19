@@ -1,7 +1,7 @@
 import { saveToCSV } from "../utils/fileHandler.ts";
 import { log } from "../utils/logger.ts";
 import globalVariables from "../../resources/globalVariable.ts";
-import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache, waitForProfileTitle } from "./tweetUtils.ts";
+import { checkDuplicateUsernameProfile, checkIfTweetLimitReached, checkTweetDate, handleSww, loadProfileTweetCache, loadTweetCache, saveProfileTweetCache, saveTweetCache, tweetCache, tweetProfilieCache, waitForProfileTitle } from "./tweetUtils.ts";
 import { extractProfileDataAtIndex, extractTweetDataAtIndex, swipeUpByLastIndex } from "./tweetExtractors.ts";
 import { baseOpenBrowser, pageLoad } from "../utils/webdriver/browser.ts";
 import { scrollPageDownTimes } from "../utils/webdriver/swipeActions.ts";
@@ -54,6 +54,10 @@ export async function runTweetScrapingLoops(tweetLimit: number) {
             .map(v => `"${String(v).replace(/"/g, '""')}"`)
             .join(",")
           : "";
+        
+        if (checkTweetDate(tweetData.date)) {
+          return;
+        }
 
         const tweetObject = {
           tweet_id: tweetData.tweetId,

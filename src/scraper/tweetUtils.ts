@@ -97,10 +97,22 @@ export function checkIfTweetLimitReached(maxLength: number): boolean {
   if (currentCount >= maxLength) {
     log("info", `[${globalVariables.scenarioName}] ✅ Tweets collected have reached ${maxLength}`);
     return true;
-  } else {
+  } 
+  else {
     log("info", `[${globalVariables.scenarioName}] ✅ Tweets collected: ${currentCount}/${maxLength}`);
     return false;
   }
+}
+
+export function checkTweetDate(date: string): boolean {
+  const dateMatch = globalVariables.scenarioName.match(/\b(\d{1,2}) March 2025\b/);
+  const day = dateMatch[1].padStart(2, '0')
+  if (!date.includes(day)) {
+    log("info",`✅ Tweets collected have reached, because the tweet date(${date}) is different with ${day} ,`)
+    return true;
+  }
+  return false
+
 }
 
 /**
@@ -153,43 +165,6 @@ export function extractUsername(tweet: string): string[] {
  *
  * @throws {Error} - Throws an error when the maximum retry attempts are reached.
  */
-// export async function handleSww() {
-//   const retryButton = keyElement("tweets:retryButton_sww")
-//   let attempts = 0;
-//   const maxAttempts = 7;
-//   try {
-//     if (await elWaitForExist(retryButton, 2500)) {
-//       while (await (await findElement(retryButton)).isDisplayed()) {
-//         if (attempts) {
-//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-//           await browser.pause(180000); // three minutes
-//         } else if (attempts === 4) {
-//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-//           await browser.pause(300000); // three minutes
-//           sleep(300)
-//         } else if (attempts === 5) {
-//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-//           await browser.pause(480000);
-//         } else if (attempts === 6) {
-//           log("warn", `It has been attempted ${attempts} times, but the 'sww retry' keeps appearing. Please wait a moment...`)
-//           await browser.pause(600000);
-//         }
-//         await browser.pause(2000);
-//         await pageLoad(5)
-//         await actionClick(retryButton)
-//         await browser.pause(2000);
-//         attempts++
-
-//         if (attempts >= maxAttempts) {
-//           throw new Error(`Attempts exhausted! It has been tried ${attempts} times, but the 'sww retry' keeps appearing.`)
-//         }
-//       }
-//     }
-//   } catch (err: any) {
-//     log('error', 'An error occurred while trying to handle sww', { err: new Error(err.message) });
-//     throw err
-//   }
-// }
 export async function handleSww() {
   const retryButton = keyElement("tweets:retryButton_sww")
   let attempts = 0;

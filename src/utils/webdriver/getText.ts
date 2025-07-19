@@ -102,8 +102,12 @@ export async function ensureAndGetText(tweet: WebdriverIO.Element, selector: str
   const elWait = await elWaitForExistTweet(tweet, selector);
   
   if (!elWait) {
-    const status = await scrollUntilElementVisible(tweet, selector, 0.5);
-    if (!status) throw new Error(errorMsg);
+    const status = await scrollUntilElementVisible(tweet, selector, 0.7);
+    if (!status) {
+      const outerHTML = await tweet.getHTML();
+      log("info", `Tweet outerHTML: ${outerHTML}`);
+      throw new Error(errorMsg);
+    }
   }
 
   const text = await tweetGetText(tweet, selector);

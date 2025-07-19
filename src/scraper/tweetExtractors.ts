@@ -53,9 +53,9 @@ export async function swipeUpByLastIndex(indexArticle: number) {
       // const half = Math.ceil(lastIndex * 0.5);
       log("info", `Swipe will be executed ${Math.ceil(lastIndex)} times`)
       for (let i = 0; i < Math.ceil(lastIndex); i++) {
-        await scrollPageDownTimes(i,0.5)
+        await scrollPageDownTimes(i,0.7)
         log("info", `swipeUpByLastIndex: swipeUpwithTime was done ${i} times.`)
-        await browser.pause(5000);
+        await browser.pause(2500);
         await handleSww()
       }
       return true
@@ -131,10 +131,7 @@ async function getTweetTextData(tweet: WebdriverIO.Element) {
   const usernameSelector = `.${keyElement("tweets:username")}`;
   const postingSelector = `.${keyElement("tweets:posting")}`;
   const timeSelector = `.${keyElement("tweets:postingTime")}`;
-
-  // const username = await ensureAndGetText(tweet, usernameSelector, "Tweet not found");
-  // const textTweet = await ensureAndGetText(tweet, postingSelector, "Text tweet not found");
-  // const rawDate = await ensureAndGetText(tweet, timeSelector, "Date not found");
+  
   const [username, textTweet, rawDate] = await Promise.all([
     ensureAndGetText(tweet, usernameSelector, "Tweet not found"),
     ensureAndGetText(tweet, postingSelector, "Text tweet not found"),
